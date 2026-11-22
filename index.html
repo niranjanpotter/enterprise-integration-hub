@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=3">
-  <script src="assets/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=4">
+  <script src="assets/app.js?v=4" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -30,8 +30,9 @@
 
       <nav class="header-nav" aria-label="Primary Navigation">
         <a class="nav-link" href="#pattern-advisor">Pattern Advisor</a>
+        <a class="nav-link" href="#platform-radar">2026 Radar</a>
         <a class="nav-link" href="#blueprints">Blueprints</a>
-        <a class="nav-link" href="#delivery-estimator">Delivery Estimator</a>
+        <a class="nav-link" href="#delivery-estimator">Estimator</a>
         <a class="nav-link" href="#readiness-audit">Readiness</a>
         <a class="nav-link" href="#dev-utilities">Utilities</a>
         <a class="nav-link" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 ↗</a>
@@ -54,11 +55,11 @@
     <nav class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
       <div class="mobile-nav-list">
         <a href="#pattern-advisor" onclick="toggleMobileNav(false)">⚡ Pattern Advisor</a>
+        <a href="#platform-radar" onclick="toggleMobileNav(false)">🛰️ 2026 Platform Radar</a>
         <a href="#blueprints" onclick="toggleMobileNav(false)">📐 Blueprints</a>
         <a href="#delivery-estimator" onclick="toggleMobileNav(false)">📋 Delivery Estimator</a>
         <a href="#readiness-audit" onclick="toggleMobileNav(false)">🛡️ Readiness Audit</a>
         <a href="#dev-utilities" onclick="toggleMobileNav(false)">🛠️ Dev Utilities</a>
-        <a href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer" onclick="toggleMobileNav(false)">📘 MuleSoft 268 ↗</a>
       </div>
       <div class="mobile-author-strip">Curated &amp; Authored by Niranjan Potter</div>
     </nav>
@@ -223,6 +224,7 @@
             <button type="button" class="seg-btn active" onclick="selectBlueprint('sf-sap', this)">Salesforce ↔ SAP Sync</button>
             <button type="button" class="seg-btn" onclick="selectBlueprint('cloud-mig', this)">Zero-Downtime Cloud Migration</button>
             <button type="button" class="seg-btn" onclick="selectBlueprint('ai-mcp', this)">Enterprise AI &amp; MCP Gateway</button>
+            <button type="button" class="seg-btn" onclick="selectBlueprint('cross-2026', this)">2026 Cross-Platform Agentic Mesh</button>
           </div>
 
           <h3 id="bp-title" style="margin:18px 0 6px; font-size:1.2rem;"></h3>
@@ -424,6 +426,50 @@
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) -->
+    <section class="section" id="platform-radar">
+      <div class="container">
+        <div class="section-card" id="radar-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">06 · 2026 Official Platform Intelligence (MuleSoft · Workato · Salesforce · SAP)</div>
+              <h2>Cross-Platform Enterprise Integration Radar</h2>
+              <p>Side-by-side 2026 capabilities and rare production gotchas synthesized from official MuleSoft, Workato, Salesforce, and SAP BTP Integration Suite docs — ready for Architecture Review Boards &amp; RFPs.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('radar-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="toolbar-row">
+            <div class="seg-group" id="radar-tabs" role="tablist" aria-label="2026 Platform Pillars">
+              <button type="button" class="seg-btn active" onclick="selectRadarPillar('agentic', this)">🤖 Agentic AI &amp; MCP</button>
+              <button type="button" class="seg-btn" onclick="selectRadarPillar('streaming', this)">⚡ gRPC &amp; Event Mesh</button>
+              <button type="button" class="seg-btn" onclick="selectRadarPillar('gateways', this)">🛡️ Omni &amp; Edge Gateways</button>
+              <button type="button" class="seg-btn" onclick="selectRadarPillar('core', this)">🏗️ Clean Core &amp; Zero-Copy</button>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="copyRadarMarkdown()">📋 Copy 4-Platform Table</button>
+          </div>
+
+          <div class="result-box" style="margin-bottom:16px; border-color:rgba(245,158,11,0.38);">
+            <h3 id="radar-heading">Agentic AI, MCP Governance &amp; Identity Security</h3>
+            <p id="radar-insight" style="color:var(--text); font-weight:600;"></p>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>2026 Flagship Capability</th>
+                  <th>Best Enterprise Fit</th>
+                </tr>
+              </thead>
+              <tbody id="radar-tbody"></tbody>
+            </table>
           </div>
         </div>
       </div>

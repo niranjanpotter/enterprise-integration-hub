@@ -409,6 +409,38 @@
         ['Cost & Latency Control', 'Semantic caching serves repeated policy/status prompts in <50ms while automatic fallback shifts traffic if a primary LLM throttles.'],
         ['Compliance & PII', 'Gateway strips SSN, card numbers, and secrets before prompts leave the enterprise boundary.']
       ]
+    },
+    'cross-2026': {
+      title: '2026 Cross-Platform Agentic Mesh (Salesforce gRPC + MuleSoft/Workato MCP + SAP Clean Core)',
+      summary: 'Unifies Salesforce Pub/Sub API (gRPC + Avro pull flow control), Verified User Access (VUA) / Agent Fabric MCP governance, and SAP S/4HANA Clean Core OData v4 without custom ERP code.',
+      svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="2026 Cross-Platform Agentic Mesh Blueprint">' +
+        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
+        '<rect x="20" y="54" width="170" height="112" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="105" y="88" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Salesforce</text>' +
+        '<text x="105" y="112" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Pub/Sub API (gRPC)</text>' +
+        '<text x="105" y="134" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Data Cloud Zero-Copy</text>' +
+        '<line x1="190" y1="110" x2="242" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="242,105 252,110 242,115" fill="#f59e0b"/>' +
+        '<rect x="252" y="42" width="210" height="136" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
+        '<text x="357" y="76" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Omni / Edge MCP Plane</text>' +
+        '<text x="357" y="100" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">MuleSoft Agent Fabric (A2A)</text>' +
+        '<text x="357" y="122" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Workato MCP + VUA (OAuth)</text>' +
+        '<text x="357" y="146" fill="#fbbf24" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Human-in-Loop Approvals</text>' +
+        '<line x1="462" y1="110" x2="514" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="514,105 524,110 514,115" fill="#10b981"/>' +
+        '<rect x="524" y="54" width="176" height="112" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
+        '<text x="612" y="88" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP Integration Suite</text>' +
+        '<text x="612" y="112" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Advanced Event Mesh</text>' +
+        '<text x="612" y="134" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">SAP Graph + API Mgmt</text>' +
+        '<line x1="700" y1="110" x2="744" y2="110" stroke="#f97316" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#f97316"/>' +
+        '<rect x="754" y="54" width="146" height="112" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
+        '<text x="827" y="92" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP S/4HANA</text>' +
+        '<text x="827" y="116" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Clean Core (BTP)</text>' +
+        '<text x="827" y="138" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 Batch</text>' +
+        '</svg>',
+      cards: [
+        ['Verified User Access (VUA)', 'AI agents call MCP tools using the end user\'s own OAuth 2.0 identity instead of a shared super-admin token, enforcing native CRM/ERP RBAC.'],
+        ['gRPC Pull Flow Control', 'Salesforce Pub/Sub API replaces legacy CometD push streams with HTTP/2 + binary Avro pull batches so consumers never get overwhelmed.'],
+        ['SAP Clean Core Compliance', 'All custom orchestration stays side-by-side in SAP BTP / MuleSoft / Workato via OData v4 & AEM, keeping S/4HANA upgrades 100% safe.']
+      ]
     }
   };
 
@@ -694,6 +726,84 @@
     });
   };
 
+  /* ===== 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) ===== */
+  var RADAR_DATA = {
+    agentic: {
+      heading: 'Agentic AI, MCP Governance & Identity Security',
+      insight: 'Rare Architect Insight: Never run AI/MCP tools under a shared "god-mode" service token. Use Workato Verified User Access (VUA) or MuleSoft Agent Fabric scoped OAuth so every AI tool call inherits the exact caller\'s RBAC permissions.',
+      rows: [
+        ['MuleSoft (docs.mulesoft.com)', 'Agent Fabric + Agent Brokers (agent-network.yaml) + A2A (Agent-to-Agent) + MCP Bridges (OAS 3.1/3.2 -> MCP tools)', 'Best when governing heterogeneous APIs + multi-agent networks across hybrid clouds'],
+        ['Workato (docs.workato.com)', 'Workato ONE Agent Studio ("Genies") + Enterprise MCP + Verified User Access (VUA) + Slack/Teams Human-in-the-Loop', 'Best for fast business-workflow orchestration with end-user credential delegation'],
+        ['Salesforce (developer.salesforce.com)', 'Agentforce Topics & Actions + External Services (OpenAPI -> declarative Agent Actions) + Data Cloud RAG grounding', 'Best for CRM-native autonomous service & sales agents grounded in unified profiles'],
+        ['SAP (store.sap.com / BTP)', 'SAP BTP AI Core + Side-by-Side Clean Core extensions exposing governed OData v4 / SAP Graph actions', 'Best for ERP-centric enterprise workflows without modifying S/4HANA core ABAP']
+      ]
+    },
+    streaming: {
+      heading: 'Next-Gen Event Streaming & Backpressure Control',
+      insight: 'Rare Architect Insight: Legacy push streaming (CometD) can crash slow consumers during traffic bursts. Salesforce Pub/Sub API (gRPC + HTTP/2 + Binary Avro) introduces client-controlled Pull Flow Control so consumers request exact batch sizes.',
+      rows: [
+        ['MuleSoft', 'Anypoint MQ (FIFO + DLQ) + Kafka Connector + ReplayId persistence in ObjectStore v2', 'Strong hybrid enterprise messaging with native DLQ replay flows'],
+        ['Workato', 'Event Streams + Recipe Triggers + AWS SNS / Azure Event Hub / Kafka connectors', 'Rapid event-to-workflow orchestration with built-in job history & retries'],
+        ['Salesforce', 'Pub/Sub API (gRPC + HTTP/2 + Apache Avro) with Pull Flow Control replacing legacy CometD', 'High-throughput bidirectional streaming directly into Data Cloud & external apps'],
+        ['SAP Integration Suite', 'SAP Event Mesh & SAP Advanced Event Mesh (AEM) with multi-cloud topic filtering & queuing', 'Decouples S/4HANA lifecycle events cleanly across hybrid & multi-cloud landscapes']
+      ]
+    },
+    gateways: {
+      heading: 'Unified API, AI & Hybrid Edge Gateways',
+      insight: 'Rare Architect Insight: Modern gateways now govern BOTH traditional REST/GraphQL traffic AND AI/MCP agent traffic inside private VPCs/on-prem perimeters without routing sensitive payloads through public SaaS planes.',
+      rows: [
+        ['MuleSoft', 'Omni Gateway (evolution of Flex Gateway) — unified policy plane for REST, GraphQL, MCP & AI agents', 'Ultra-lightweight Envoy-based gateway managing Mule & non-Mule APIs anywhere'],
+        ['Workato', 'API Edge Gateway (EGW) — local on-prem / private-cloud data plane + cloud control plane + RBAC 2.0', 'Keeps regulated banking/healthcare API traffic strictly inside corporate perimeter'],
+        ['Salesforce', 'External Services + Named Credentials + MuleSoft API Manager / Shield Event Monitoring', 'Declarative OAuth/mTLS callout management directly inside Salesforce'],
+        ['SAP Integration Suite', 'SAP API Management + Developer Hub (rate limits, OAuth, threat protection, API composition)', 'Centralized governance for SAP OData v4 and third-party enterprise APIs']
+      ]
+    },
+    core: {
+      heading: 'Modern Runtime, Zero-Copy Data & Clean Core',
+      insight: 'Rare Architect Insight: Copying ERP/CRM tables into 5 integration databases creates reconciliation nightmares. Combine Salesforce Data Cloud Zero-Copy + SAP S/4HANA Clean Core + SAP Graph to keep one source of truth.',
+      rows: [
+        ['MuleSoft', 'CloudHub 2.0 (Kubernetes Private Spaces) + Anypoint Code Builder (VS Code) + MuleSoft Vibes AI assistant', 'Pro-code API-led architecture with Terraform GitOps & OpenTelemetry Direct Telemetry'],
+        ['Workato', 'Low-code Recipes + AIRO Connector Builder + Collaborator Groups (RBAC 2.0)', 'Fastest delivery speed for cross-SaaS business & IT automation teams'],
+        ['Salesforce', 'Data Cloud Zero-Copy Federation (Snowflake / Databricks / BigQuery) + Apex/Flow pro-code hooks', 'Real-time 360 customer intelligence without duplicating terabytes of warehouse data'],
+        ['SAP Integration Suite', 'Clean Core side-by-side extensibility on SAP BTP + SAP Graph unified business model + OData v4', 'Keeps S/4HANA upgrades zero-breakage by banning invasive custom ABAP modifications']
+      ]
+    }
+  };
+
+  var activeRadarKey = 'agentic';
+  window.selectRadarPillar = function (key, btn) {
+    var d = RADAR_DATA[key];
+    if (!d) return;
+    activeRadarKey = key;
+    document.querySelectorAll('#radar-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    document.getElementById('radar-heading').textContent = d.heading;
+    document.getElementById('radar-insight').textContent = d.insight;
+    document.getElementById('radar-tbody').innerHTML = d.rows.map(function (r) {
+      return '<tr><td><strong>' + r[0] + '</strong></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+    }).join('');
+  };
+
+  window.copyRadarMarkdown = function () {
+    var d = RADAR_DATA[activeRadarKey];
+    if (!d) return;
+    var md = [
+      '# 2026 Enterprise Integration Radar: ' + d.heading,
+      '',
+      '> ' + d.insight,
+      '',
+      '| Platform | 2026 Flagship Capability | Best Enterprise Fit |',
+      '| :--- | :--- | :--- |',
+      d.rows.map(function (r) { return '| ' + r.join(' | ') + ' |'; }).join('\n'),
+      '',
+      '_Source: Enterprise Integration Hub (https://niranjanpotter.dpdns.org)_'
+    ].join('\n');
+    navigator.clipboard.writeText(md).then(function () {
+      showToast('Copied 4-Platform Comparison (Markdown)!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
   /* ===== Init ===== */
   document.addEventListener('DOMContentLoaded', function () {
     syncThemeBtn();
@@ -716,5 +826,6 @@
     window.loadSampleJwt();
     window.explainCron();
     window.generateSpec('oas');
+    window.selectRadarPillar('agentic', document.querySelector('#radar-tabs .seg-btn'));
   });
 })();

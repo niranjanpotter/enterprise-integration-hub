@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Integration Pattern Advisor &amp; Free Markdown ADR Generator | Enterprise Integration Hub</title>
+  <meta name="description" content="Choose the right enterprise integration pattern (API-Led Sync, Event-Driven FIFO + DLQ, Bulk ETL, Bidirectional Loop-Guard, or AI/MCP Proxy) and export a ready-to-paste Markdown ADR.">
+  <link rel="canonical" href="https://niranjanpotter.dpdns.org/integration-pattern-advisor-adr-generator.html">
+  <meta property="og:title" content="Enterprise Integration Pattern Advisor &amp; Free Markdown ADR Generator">
+  <meta property="og:description" content="Choose the right enterprise integration pattern (API-Led Sync, Event-Driven FIFO + DLQ, Bulk ETL, Bidirectional Loop-Guard, or AI/MCP Proxy) and export a ready-to-paste Markdown ADR.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://niranjanpotter.dpdns.org/integration-pattern-advisor-adr-generator.html">
+  <meta property="og:image" content="https://niranjanpotter.dpdns.org/assets/og-card.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Enterprise Integration Pattern Advisor &amp; Free Markdown ADR Generator">
+  <meta name="twitter:description" content="Choose the right enterprise integration pattern (API-Led Sync, Event-Driven FIFO + DLQ, Bulk ETL, Bidirectional Loop-Guard, or AI/MCP Proxy) and export a ready-to-paste Markdown ADR.">
+  <meta name="twitter:image" content="https://niranjanpotter.dpdns.org/assets/og-card.svg">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f59e0b'/%3E%3Cstop offset='1' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2309090b'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=4">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Enterprise Integration Pattern Advisor & Free Markdown ADR Generator", "description": "Choose the right enterprise integration pattern (API-Led Sync, Event-Driven FIFO + DLQ, Bulk ETL, Bidirectional Loop-Guard, or AI/MCP Proxy) and export a ready-to-paste Markdown ADR.", "url": "https://niranjanpotter.dpdns.org/integration-pattern-advisor-adr-generator.html", "author": {"@type": "Person", "name": "Niranjan Potter", "url": "https://niranjanprofile.vercel.app/"}, "datePublished": "2026-11-22", "dateModified": "2026-11-22"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is included in the generated Markdown ADR?", "acceptedAnswer": {"@type": "Answer", "text": "Status, workload context, target SLA, architectural rationale, delivery plan, executive value, flow sequence, anti-patterns avoided, and a 3-column MuleSoft / AWS / Enterprise platform mapping table."}}]}]}</script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">EI</span>
+        <span class="brand-text">
+          <span class="brand-title">Enterprise Integration Hub</span>
+          <span class="brand-sub">Architecture &amp; Delivery Workbench</span>
+        </span>
+      </a>
+      <div class="header-right">
+        <span class="author-pill">Curated &amp; Authored by Niranjan Potter</span>
+        <a class="btn btn-primary btn-sm" href="/#pattern-advisor">Launch Tool →</a>
+      </div>
+    </div>
+  </header>
+  <main class="section">
+    <div class="container">
+      <div class="section-card">
+        <div class="section-kicker">Interactive Architecture Decision Tool</div>
+        <h1 style="margin:0 0 12px; font-size:clamp(1.65rem,3.4vw,2.5rem); line-height:1.15;">Enterprise Integration Pattern Advisor &amp; Markdown ADR Generator</h1>
+        <p style="color:var(--text-muted); font-size:1.02rem; max-width:780px; margin:0 0 22px;">Stop debating Sync vs Async, Kafka vs Anypoint MQ, or Bulk vs REST from scratch. Model your workload constraints and export an Architecture Decision Record (ADR) for Confluence, Jira, or GitHub in one click.</p>
+        <div class="hero-actions" style="margin-bottom:26px;">
+          <a class="btn btn-primary" href="/#pattern-advisor">⚡ Launch Pattern Advisor & ADR Generator</a>
+          <a class="btn" href="/">← All Interactive Workbench Tools</a>
+          <a class="btn" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">📘 MuleSoft 268 Q&amp;A Hub ↗</a>
+        </div>
+        <div class="result-box" style="margin-bottom:14px;"><h3>When to Choose Sync API-Led vs Async Event-Driven</h3><p style="color:var(--text);">Use synchronous API-led orchestration (XAPI → PAPI → SAPI) with parallel Scatter-Gather and edge caching when callers need sub-second responses (&lt;350ms). Switch to asynchronous Event-Driven Mesh (202 Accepted → Kafka / Anypoint MQ / SQS FIFO → DLQ) whenever downstream latency exceeds 3 seconds, traffic spikes 5×–10×, or zero order loss is mandatory.</p></div>
+<div class="result-box" style="margin-bottom:14px;"><h3>Preventing Bidirectional CRM ↔ ERP Infinite Loops</h3><p style="color:var(--text);">Never synchronize Salesforce and SAP bidirectionally on raw timestamps alone. Tag every integration write with a dedicated service account + correlation header and verify a payload SHA-256 hash in Redis or ObjectStore v2 before emitting updates back.</p></div>
+<div class="result-box" style="margin-bottom:14px;"><h3>Architect, Delivery Manager &amp; CTO Views</h3><p style="color:var(--text);">Every recommendation automatically translates into 3 stakeholder lenses: technical rationale &amp; anti-patterns for Architects, sprint effort &amp; critical-path dependencies for Delivery Managers, and business value pitches for CTOs.</p></div>
+        <h2 style="margin:26px 0 12px; font-size:1.25rem;">Frequently Asked Architect Questions</h2>
+        <div class="result-box" style="margin-bottom:12px;"><h3>Q: What is included in the generated Markdown ADR?</h3><p>Status, workload context, target SLA, architectural rationale, delivery plan, executive value, flow sequence, anti-patterns avoided, and a 3-column MuleSoft / AWS / Enterprise platform mapping table.</p></div>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container">
+      <div style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border);">
+        <div class="section-kicker" style="margin-bottom:8px;">More Guides on Enterprise Integration Hub</div>
+        <div class="footer-links"><a href="mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html">MuleSoft vs Workato vs Salesforce vs SAP Integration Suite (2026)</a> <a href="integration-delivery-sprint-estimator.html">Integration Delivery &amp; Sprint Effort Estimator</a> <a href="offline-jwt-decoder-security-auditor.html">100% Offline Enterprise JWT Decoder &amp; Security Auditor</a> <a href="mule4-quartz-cron-expression-builder.html">Mule 4 &amp; 6-Field Quartz Cron Expression Builder</a> <a href="json-to-openapi-raml-schema-generator.html">Free Offline JSON → OpenAPI 3.0 &amp; RAML 1.0 Generator</a></div>
+      </div>
+      <div class="footer-inner">
+        <div><strong>Enterprise Integration Hub</strong> · Curated &amp; Authored by Niranjan Potter · <a href="mailto:niranjan@niranjanpotter.dpdns.org">niranjan@niranjanpotter.dpdns.org</a></div>
+        <div class="footer-links">
+          <a href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://niranjanprofile.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

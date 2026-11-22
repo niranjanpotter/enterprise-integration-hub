@@ -67,16 +67,31 @@
   /* ===== 1. Integration Pattern Advisor & ADR Generator ===== */
   var advisorAudience = 'architect';
 
+  window.applyAdvisorPreset = function (key, btn) {
+    document.querySelectorAll('.preset-chip').forEach(function (c) { c.classList.toggle('active', c === btn); });
+    var map = {
+      spike: ['async', 'high', 'fifo', 'aws', 'audit'],
+      sfsap: ['bidir', 'med', 'fifo', 'sf-sap', 'audit'],
+      etl: ['bulk', 'high', 'atleast', 'legacy', 'cost'],
+      aimcp: ['sync', 'med', 'atleast', 'ai-mcp', 'latency']
+    };
+    var v = map[key];
+    if (!v) return;
+    document.getElementById('adv-mode').value = v[0];
+    document.getElementById('adv-volume').value = v[1];
+    document.getElementById('adv-delivery').value = v[2];
+    document.getElementById('adv-eco').value = v[3];
+    document.getElementById('adv-priority').value = v[4];
+    renderAdvisor();
+  };
+
   function computeRecommendation(mode, volume, delivery, eco, priority) {
-    var title = '';
-    var flow = [];
-    var why = '';
-    var execPitch = '';
-    var antipatterns = [];
-    var mapping = [];
+    var title = '', flow = [], why = '', execPitch = '', antipatterns = [], mapping = [];
+    var sla = { latency: '150–400ms', resilience: '99.95%', complexity: 'Medium' };
 
     if (eco === 'ai-mcp') {
       title = 'Governed AI Gateway + MCP Tool Proxy + Semantic Cache';
+      sla = { latency: '< 50ms (cached) / 1.2s', resilience: '99.9% (multi-LLM)', complexity: 'Medium-High' };
       flow = [
         ['Client / Agent', 'AI Agent / Copilot'],
         ['Gateway', 'API & PII Policy Layer'],
@@ -98,6 +113,7 @@
       ];
     } else if (mode === 'bulk') {
       title = 'Asynchronous Bulk Staging + Chunked Batch Pipeline + Idempotent Upsert';
+      sla = { latency: 'Batch Window (Mins)', resilience: '99.99% (Replayable)', complexity: 'Medium' };
       flow = [
         ['Source', 'Bulk Extract / S3 / SFTP'],
         ['Ingestion', 'Chunked Streaming Reader'],
@@ -119,6 +135,7 @@
       ];
     } else if (mode === 'bidir') {
       title = 'Event-Driven Bidirectional Sync with Loop-Guard & Idempotency Store';
+      sla = { latency: '< 2s Near Real-Time', resilience: '99.95% (DLQ Replay)', complexity: 'High' };
       flow = [
         ['System A', 'CDC / Platform Events'],
         ['Event Mesh', 'Kafka / Anypoint MQ FIFO'],
@@ -140,6 +157,7 @@
       ];
     } else if (mode === 'async' || delivery === 'fifo' || volume === 'high') {
       title = 'Event-Driven Decoupled Mesh (Broker + FIFO + Idempotent Consumer + DLQ)';
+      sla = { latency: '< 80ms Ack (202)', resilience: '99.99% (Zero-Loss)', complexity: 'Medium-High' };
       flow = [
         ['Producer', 'Experience API (202 Accepted)'],
         ['Broker', 'Kafka / Anypoint MQ / SQS FIFO'],
@@ -161,6 +179,7 @@
       ];
     } else {
       title = 'API-Led Synchronous Orchestration with Edge Caching & Circuit Breaker';
+      sla = { latency: '120–350ms P95', resilience: '99.9% (Circuit Breaker)', complexity: 'Low-Medium' };
       flow = [
         ['Consumer', 'Web / Mobile / Partner'],
         ['Edge Gateway', 'OAuth2 / JWT + Rate Limit'],
@@ -190,7 +209,7 @@
       why += ' Cost focus: right-size fractional replicas/serverless concurrency, cache repetitive reads, and avoid unnecessary 24/7 idle clusters.';
     }
 
-    return { title: title, flow: flow, why: why, execPitch: execPitch, antipatterns: antipatterns, mapping: mapping };
+    return { title: title, sla: sla, flow: flow, why: why, execPitch: execPitch, antipatterns: antipatterns, mapping: mapping };
   }
 
   var lastAdrMarkdown = '';
@@ -204,6 +223,11 @@
 
     var rec = computeRecommendation(mode, volume, delivery, eco, priority);
 
+    document.getElementById('adv-sla-strip').innerHTML =
+      '<div class="sla-pill">Target Latency: <span>' + rec.sla.latency + '</span></div>' +
+      '<div class="sla-pill">Resilience Tier: <span>' + rec.sla.resilience + '</span></div>' +
+      '<div class="sla-pill">Ops Complexity: <span>' + rec.sla.complexity + '</span></div>';
+
     var flowEl = document.getElementById('adv-flow');
     flowEl.innerHTML = rec.flow.map(function (n, idx) {
       return '<div class="flow-node"><div class="flow-node-tag">' + n[0] + '</div><div class="flow-node-name">' + n[1] + '</div></div>' +
@@ -214,16 +238,14 @@
     document.getElementById('adv-why').textContent = advisorAudience === 'exec' ? rec.execPitch : rec.why;
     document.getElementById('adv-why-label').textContent = advisorAudience === 'exec' ? '2. Executive / CTO Business Value' : '2. Architectural Rationale';
 
-    var antiEl = document.getElementById('adv-antipatterns');
-    antiEl.innerHTML = rec.antipatterns.map(function (a) { return '<li>' + a + '</li>'; }).join('');
+    document.getElementById('adv-antipatterns').innerHTML = rec.antipatterns.map(function (a) { return '<li>' + a + '</li>'; }).join('');
 
     document.getElementById('adv-pitch').textContent = advisorAudience === 'exec'
       ? 'Recommended next step: approve a 2-week reference spike validating throughput, failover, and correlation telemetry before full rollout.'
       : rec.execPitch;
     document.getElementById('adv-pitch-label').textContent = advisorAudience === 'exec' ? '4. Delivery & Governance Next Step' : '4. 1-Line Executive Pitch';
 
-    var tbody = document.getElementById('adv-map-body');
-    tbody.innerHTML = rec.mapping.map(function (row) {
+    document.getElementById('adv-map-body').innerHTML = rec.mapping.map(function (row) {
       return '<tr><td><strong>' + row[0] + '</strong></td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>';
     }).join('');
 
@@ -233,6 +255,7 @@
       '**Status:** Proposed  ',
       '**Author:** Enterprise Integration Hub (https://niranjanpotter.dpdns.org)  ',
       '**Context:** Mode=' + mode + ' | Volume=' + volume + ' | Delivery=' + delivery + ' | Ecosystem=' + eco + ' | Priority=' + priority,
+      '**Target SLA:** Latency ' + rec.sla.latency + ' | Resilience ' + rec.sla.resilience,
       '',
       '## Decision',
       rec.why,
@@ -276,25 +299,25 @@
       title: 'Bidirectional Salesforce ↔ SAP S/4HANA Sync',
       summary: 'Near-real-time customer & order synchronization with deterministic loop prevention, ReplayId recovery, and zero duplicate postings.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Salesforce to SAP Bidirectional Architecture">' +
-        '<rect width="920" height="230" rx="12" fill="#090e1a"/>' +
-        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#111d35" stroke="#38bdf8" stroke-width="2"/>' +
-        '<text x="99" y="102" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Salesforce CRM</text>' +
-        '<text x="99" y="124" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CDC / Platform Events</text>' +
-        '<line x1="174" y1="95" x2="238" y2="95" stroke="#38bdf8" stroke-width="2"/><polygon points="238,90 248,95 238,100" fill="#38bdf8"/>' +
-        '<line x1="248" y1="125" x2="184" y2="125" stroke="#818cf8" stroke-width="2"/><polygon points="184,120 174,125 184,130" fill="#818cf8"/>' +
-        '<rect x="248" y="48" width="180" height="124" rx="10" fill="#131b30" stroke="#818cf8" stroke-width="2"/>' +
-        '<text x="338" y="84" fill="#c4b5fd" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Event Mesh / MQ</text>' +
-        '<text x="338" y="108" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">FIFO + ReplayId Store</text>' +
-        '<text x="338" y="132" fill="#10b981" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">DLQ Auto-Replay</text>' +
-        '<line x1="428" y1="110" x2="492" y2="110" stroke="#38bdf8" stroke-width="2"/><polygon points="492,105 502,110 492,115" fill="#38bdf8"/>' +
-        '<rect x="502" y="48" width="188" height="124" rx="10" fill="#131b30" stroke="#10b981" stroke-width="2"/>' +
+        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
+        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="99" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Salesforce CRM</text>' +
+        '<text x="99" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CDC / Platform Events</text>' +
+        '<line x1="174" y1="95" x2="238" y2="95" stroke="#f59e0b" stroke-width="2"/><polygon points="238,90 248,95 238,100" fill="#f59e0b"/>' +
+        '<line x1="248" y1="125" x2="184" y2="125" stroke="#10b981" stroke-width="2"/><polygon points="184,120 174,125 184,130" fill="#10b981"/>' +
+        '<rect x="248" y="48" width="180" height="124" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
+        '<text x="338" y="84" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Event Mesh / MQ</text>' +
+        '<text x="338" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">FIFO + ReplayId Store</text>' +
+        '<text x="338" y="132" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">DLQ Auto-Replay</text>' +
+        '<line x1="428" y1="110" x2="492" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="492,105 502,110 492,115" fill="#f59e0b"/>' +
+        '<rect x="502" y="48" width="188" height="124" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
         '<text x="596" y="84" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Process &amp; Loop Guard</text>' +
-        '<text x="596" y="108" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Filter Integration User</text>' +
-        '<text x="596" y="132" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">SHA-256 Payload Hash</text>' +
+        '<text x="596" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Filter Integration User</text>' +
+        '<text x="596" y="132" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">SHA-256 Payload Hash</text>' +
         '<line x1="690" y1="110" x2="744" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#10b981"/>' +
-        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#111d35" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="825" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP S/4HANA</text>' +
-        '<text x="825" y="124" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 / IDoc</text>' +
+        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
+        '<text x="825" y="102" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP S/4HANA</text>' +
+        '<text x="825" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 / IDoc</text>' +
         '</svg>',
       cards: [
         ['Loop Prevention', 'Tag every integration write with a dedicated service user + correlation header and compare payload SHA-256 hashes before emitting updates back.'],
@@ -306,23 +329,23 @@
       title: 'Zero-Downtime Legacy-to-Cloud-Native Migration',
       summary: 'Strangler-Fig API Gateway migration from legacy EC2/on-prem runtimes to Kubernetes/CloudHub 2.0 Private Spaces with instant canary rollback.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zero Downtime Cloud Migration Blueprint">' +
-        '<rect width="920" height="230" rx="12" fill="#090e1a"/>' +
-        '<rect x="24" y="68" width="150" height="84" rx="10" fill="#111d35" stroke="#38bdf8" stroke-width="2"/>' +
-        '<text x="99" y="104" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">API Consumers</text>' +
-        '<text x="99" y="126" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Zero Client Change</text>' +
-        '<line x1="174" y1="110" x2="238" y2="110" stroke="#38bdf8" stroke-width="2"/><polygon points="238,105 248,110 238,115" fill="#38bdf8"/>' +
-        '<rect x="248" y="54" width="190" height="112" rx="10" fill="#131b30" stroke="#818cf8" stroke-width="2"/>' +
-        '<text x="343" y="92" fill="#c4b5fd" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Edge Gateway / DNS</text>' +
-        '<text x="343" y="114" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Weighted Canary</text>' +
-        '<text x="343" y="136" fill="#10b981" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">10% → 50% → 100%</text>' +
+        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
+        '<rect x="24" y="68" width="150" height="84" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="99" y="104" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">API Consumers</text>' +
+        '<text x="99" y="126" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Zero Client Change</text>' +
+        '<line x1="174" y1="110" x2="238" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="238,105 248,110 238,115" fill="#f59e0b"/>' +
+        '<rect x="248" y="54" width="190" height="112" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
+        '<text x="343" y="92" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Edge Gateway / DNS</text>' +
+        '<text x="343" y="114" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Weighted Canary</text>' +
+        '<text x="343" y="136" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">10% → 50% → 100%</text>' +
         '<line x1="438" y1="86" x2="530" y2="62" stroke="#10b981" stroke-width="2"/>' +
         '<line x1="438" y1="134" x2="530" y2="158" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,4"/>' +
         '<rect x="530" y="24" width="360" height="74" rx="10" fill="#0f231e" stroke="#10b981" stroke-width="2"/>' +
         '<text x="710" y="54" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Target: CloudHub 2.0 / Kubernetes Private Space</text>' +
-        '<text x="710" y="76" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">2+ Replicas · Transit Gateway · OTel Telemetry</text>' +
-        '<rect x="530" y="128" width="360" height="74" rx="10" fill="#1f1812" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="710" y="76" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">2+ Replicas · Transit Gateway · OTel Telemetry</text>' +
+        '<rect x="530" y="128" width="360" height="74" rx="10" fill="#231a10" stroke="#f59e0b" stroke-width="2"/>' +
         '<text x="710" y="158" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Legacy: CloudHub 1.0 / On-Prem Runtime</text>' +
-        '<text x="710" y="180" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Warm Standby for Instant 30s Rollback</text>' +
+        '<text x="710" y="180" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Warm Standby for Instant 30s Rollback</text>' +
         '</svg>',
       cards: [
         ['Network Parity First', 'Provision Private Space / VPC Peering, Transit Gateway, and egress static IPs before migrating the first API workload.'],
@@ -334,24 +357,24 @@
       title: 'Enterprise AI & Autonomous Agent Integration (MCP + Model Proxy)',
       summary: 'Connect Salesforce Agentforce and LLM copilots safely to enterprise APIs using Model Context Protocol (MCP), PII masking, and semantic caching.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Enterprise AI MCP Governance Blueprint">' +
-        '<rect width="920" height="230" rx="12" fill="#090e1a"/>' +
-        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#111d35" stroke="#c084fc" stroke-width="2"/>' +
-        '<text x="99" y="102" fill="#d8b4fe" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Agents</text>' +
-        '<text x="99" y="124" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Agentforce / Copilots</text>' +
-        '<line x1="174" y1="110" x2="234" y2="110" stroke="#c084fc" stroke-width="2"/><polygon points="234,105 244,110 234,115" fill="#c084fc"/>' +
-        '<rect x="244" y="48" width="194" height="124" rx="10" fill="#131b30" stroke="#38bdf8" stroke-width="2"/>' +
-        '<text x="341" y="84" fill="#38bdf8" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Gateway &amp; Proxy</text>' +
-        '<text x="341" y="108" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">PII Redaction + Quotas</text>' +
-        '<text x="341" y="132" fill="#10b981" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Semantic Cache + Fallback</text>' +
-        '<line x1="438" y1="110" x2="498" y2="110" stroke="#38bdf8" stroke-width="2"/><polygon points="498,105 508,110 498,115" fill="#38bdf8"/>' +
-        '<rect x="508" y="48" width="184" height="124" rx="10" fill="#131b30" stroke="#10b981" stroke-width="2"/>' +
+        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
+        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="99" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Agents</text>' +
+        '<text x="99" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Agentforce / Copilots</text>' +
+        '<line x1="174" y1="110" x2="234" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="234,105 244,110 234,115" fill="#f59e0b"/>' +
+        '<rect x="244" y="48" width="194" height="124" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
+        '<text x="341" y="84" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Gateway &amp; Proxy</text>' +
+        '<text x="341" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">PII Redaction + Quotas</text>' +
+        '<text x="341" y="132" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Semantic Cache + Fallback</text>' +
+        '<line x1="438" y1="110" x2="498" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="498,105 508,110 498,115" fill="#f59e0b"/>' +
+        '<rect x="508" y="48" width="184" height="124" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
         '<text x="600" y="84" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">MCP Tool Layer</text>' +
-        '<text x="600" y="108" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Scoped RBAC Actions</text>' +
-        '<text x="600" y="132" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Schema Validation</text>' +
+        '<text x="600" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Scoped RBAC Actions</text>' +
+        '<text x="600" y="132" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Schema Validation</text>' +
         '<line x1="692" y1="110" x2="744" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#10b981"/>' +
-        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#111d35" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="825" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">System APIs</text>' +
-        '<text x="825" y="124" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">ERP · CRM · Billing</text>' +
+        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
+        '<text x="825" y="102" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">System APIs</text>' +
+        '<text x="825" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">ERP · CRM · Billing</text>' +
         '</svg>',
       cards: [
         ['Zero Direct DB Access', 'AI agents invoke strictly typed MCP tools backed by existing System APIs — inheriting OAuth2, audit logging, and rate limits.'],
@@ -375,12 +398,76 @@
     }).join('');
   };
 
-  /* ===== 3. Offline Enterprise Dev Utilities ===== */
+  /* ===== 3. Production Readiness & Resilience Scorecard ===== */
+  var CHECKS = [
+    { id: 'c1', title: 'Idempotency Keys on Writes', sub: 'Prevents duplicate orders/payments on retries', risk: 'Duplicate financial/ERP records during network retries' },
+    { id: 'c2', title: 'Dead-Letter Queue + Replay', sub: 'Failed async messages never silently drop', risk: 'Permanent data loss when downstream systems go offline' },
+    { id: 'c3', title: 'End-to-End Correlation ID', sub: 'Trace single request across XAPI → PAPI → SAPI', risk: 'Slow Sev-1 incident debugging across distributed teams' },
+    { id: 'c4', title: 'Explicit Timeouts & Circuit Breaker', sub: 'No infinite hangs when a vendor stalls', risk: 'Thread-pool exhaustion cascading across all APIs' },
+    { id: 'c5', title: 'Zero Secrets in Code or Logs', sub: 'Vault/Secrets Manager + PII log redaction', risk: 'Credential leak or compliance/audit failure' },
+    { id: 'c6', title: 'High Availability (2+ Replicas)', sub: 'Zero-downtime rolling updates & AZ failover', risk: 'Single-node outage takes down production traffic' },
+    { id: 'c7', title: 'Contract-First OpenAPI / RAML', sub: 'Schema validation & semantic versioning enforced', risk: 'Breaking downstream consumers on silent payload drift' },
+    { id: 'c8', title: 'OpenTelemetry Traces & Alerts', sub: 'Proactive P95 latency & 5xx alerting', risk: 'Customers report outages before your ops team knows' }
+  ];
+
+  function renderScorecard() {
+    var grid = document.getElementById('score-checks');
+    if (grid && !grid.dataset.built) {
+      grid.dataset.built = '1';
+      grid.innerHTML = CHECKS.map(function (c, i) {
+        var pre = i < 4 ? ' checked' : '';
+        return '<label class="check-item' + (pre ? ' checked' : '') + '">' +
+          '<input type="checkbox" data-check-id="' + c.id + '"' + pre + ' onchange="updateScorecard()">' +
+          '<span><span class="check-title">' + c.title + '</span><span class="check-sub">' + c.sub + '</span></span>' +
+          '</label>';
+      }).join('');
+    }
+    window.updateScorecard();
+  }
+
+  window.updateScorecard = function () {
+    var boxes = document.querySelectorAll('#score-checks input[type="checkbox"]');
+    var checked = 0;
+    var missing = [];
+    boxes.forEach(function (box, idx) {
+      box.closest('.check-item').classList.toggle('checked', box.checked);
+      if (box.checked) checked++;
+      else missing.push(CHECKS[idx]);
+    });
+    var pct = Math.round((checked / CHECKS.length) * 100);
+    document.getElementById('score-num').textContent = pct + '/100';
+    document.getElementById('score-bar-fill').style.width = pct + '%';
+
+    var gradeEl = document.getElementById('score-grade');
+    var riskEl = document.getElementById('score-risk');
+    if (pct >= 88) {
+      gradeEl.innerHTML = '<span class="status-chip status-ok">🏆 Enterprise Production-Ready</span>';
+      riskEl.textContent = missing.length ? 'Remaining polish: ' + missing[0].title + '.' : 'All 8 enterprise resilience pillars verified — ready for high-SLA production!';
+    } else if (pct >= 50) {
+      gradeEl.innerHTML = '<span class="status-chip status-warn">⚠️ Needs Pre-Prod Hardening</span>';
+      riskEl.textContent = 'Top gap to close first: ' + missing[0].risk + '.';
+    } else {
+      gradeEl.innerHTML = '<span class="status-chip status-err">🚨 High Outage Risk</span>';
+      riskEl.textContent = 'Critical exposure: ' + missing[0].risk + '.';
+    }
+  };
+
+  window.copyScorecardShare = function () {
+    var score = document.getElementById('score-num').textContent;
+    var txt = 'I just ran the 60-Second Enterprise Integration Readiness Audit and scored ' + score + '!\n\nTest your API & Event-Driven architecture resilience (free & offline): https://niranjanpotter.dpdns.org/#readiness-audit';
+    navigator.clipboard.writeText(txt).then(function () {
+      showToast('Copied LinkedIn Scorecard text!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
+  /* ===== 4. Offline Enterprise Dev Utilities ===== */
   window.switchUtilTab = function (tabId, btn) {
     document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) {
       b.classList.toggle('active', b === btn);
     });
-    ['util-jwt', 'util-cron', 'util-spec'].forEach(function (id) {
+    ['util-jwt', 'util-cron', 'util-spec', 'util-http'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = id === tabId ? 'block' : 'none';
     });
@@ -453,7 +540,6 @@
     window.inspectJwt();
   };
 
-  /* Cron / Quartz Builder */
   window.applyCronPreset = function (expr) {
     document.getElementById('cron-input').value = expr;
     window.explainCron();
@@ -498,12 +584,11 @@
       '<scheduling-strategy>\n  <cron expression="' + (isQuartz ? raw : '0 ' + raw) + '" timeZone="UTC"/>\n</scheduling-strategy>';
   };
 
-  /* JSON -> OpenAPI 3.0 / RAML 1.0 Spec Generator */
-  function inferOas(val, indent) {
+  function inferSchema(val, indent, isRaml) {
     var pad = ' '.repeat(indent);
-    if (val === null) return pad + 'type: string\n' + pad + 'nullable: true';
+    if (val === null) return isRaml ? pad + 'type: nil' : pad + 'type: string\n' + pad + 'nullable: true';
     if (Array.isArray(val)) {
-      var item = val.length > 0 ? inferOas(val[0], indent + 2) : pad + '  type: object';
+      var item = val.length > 0 ? inferSchema(val[0], indent + 2, isRaml) : pad + '  type: object';
       return pad + 'type: array\n' + pad + 'items:\n' + item;
     }
     if (typeof val === 'object') {
@@ -512,29 +597,7 @@
       var lines = [pad + 'type: object', pad + 'properties:'];
       keys.forEach(function (k) {
         lines.push(pad + '  ' + k + ':');
-        lines.push(inferOas(val[k], indent + 4));
-      });
-      return lines.join('\n');
-    }
-    if (typeof val === 'number') return pad + 'type: ' + (Number.isInteger(val) ? 'integer' : 'number') + '\n' + pad + 'example: ' + val;
-    if (typeof val === 'boolean') return pad + 'type: boolean\n' + pad + 'example: ' + val;
-    return pad + 'type: string\n' + pad + 'example: ' + JSON.stringify(val);
-  }
-
-  function inferRaml(val, indent) {
-    var pad = ' '.repeat(indent);
-    if (val === null) return pad + 'type: nil';
-    if (Array.isArray(val)) {
-      var item = val.length > 0 ? inferRaml(val[0], indent + 2) : pad + '  type: object';
-      return pad + 'type: array\n' + pad + 'items:\n' + item;
-    }
-    if (typeof val === 'object') {
-      var keys = Object.keys(val);
-      if (!keys.length) return pad + 'type: object';
-      var lines = [pad + 'type: object', pad + 'properties:'];
-      keys.forEach(function (k) {
-        lines.push(pad + '  ' + k + ':');
-        lines.push(inferRaml(val[k], indent + 4));
+        lines.push(inferSchema(val[k], indent + 4, isRaml));
       });
       return lines.join('\n');
     }
@@ -548,11 +611,9 @@
     var out = document.getElementById('spec-output');
     try {
       var obj = JSON.parse(raw);
-      if (fmt === 'raml') {
-        out.textContent = '#%RAML 1.0 DataType\n' + inferRaml(obj, 0);
-      } else {
-        out.textContent = 'openapi: 3.0.3\ncomponents:\n  schemas:\n    PayloadModel:\n' + inferOas(obj, 6);
-      }
+      out.textContent = fmt === 'raml'
+        ? '#%RAML 1.0 DataType\n' + inferSchema(obj, 0, true)
+        : 'openapi: 3.0.3\ncomponents:\n  schemas:\n    PayloadModel:\n' + inferSchema(obj, 6, false);
     } catch (e) {
       out.textContent = 'Invalid JSON input: ' + e.message;
     }
@@ -572,10 +633,14 @@
     syncThemeBtn();
     ['adv-mode', 'adv-volume', 'adv-delivery', 'adv-eco', 'adv-priority'].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) el.addEventListener('change', renderAdvisor);
+      if (el) el.addEventListener('change', function () {
+        document.querySelectorAll('.preset-chip').forEach(function (c) { c.classList.remove('active'); });
+        renderAdvisor();
+      });
     });
     renderAdvisor();
     window.selectBlueprint('sf-sap', document.querySelector('#bp-tabs .seg-btn'));
+    renderScorecard();
     window.loadSampleJwt();
     window.explainCron();
     window.generateSpec('oas');

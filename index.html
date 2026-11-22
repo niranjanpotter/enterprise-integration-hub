@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enterprise Integration Hub | Architecture Pattern Advisor, Blueprints &amp; Dev Utilities</title>
-  <meta name="description" content="Vendor-neutral Enterprise Integration Architecture Hub by Niranjan Potter — interactive Integration Pattern Advisor, ADR Generator, Salesforce/SAP/Cloud/AI MCP Reference Blueprints, and offline JWT, Cron, and OpenAPI/RAML utilities.">
+  <title>Enterprise Integration Hub | Pattern Advisor, Readiness Audit &amp; Dev Utilities</title>
+  <meta name="description" content="Vendor-neutral Enterprise Integration Architecture Hub by Niranjan Potter — interactive Integration Pattern Advisor, Markdown ADR Generator, Reference Blueprints, 60-Second Readiness Scorecard, and offline JWT, Cron, OpenAPI/RAML &amp; HTTP Retry Matrix.">
   <link rel="canonical" href="https://niranjanpotter.dpdns.org/">
   <meta property="og:title" content="Enterprise Integration Hub | Architecture Patterns, Blueprints &amp; Workbench">
-  <meta property="og:description" content="Interactive Integration Pattern Advisor, Markdown ADR Generator, Reference Blueprints, and offline Enterprise Dev Utilities.">
+  <meta property="og:description" content="Interactive Integration Pattern Advisor, Markdown ADR Generator, Readiness Scorecard, and offline Enterprise Dev Utilities.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://niranjanpotter.dpdns.org/">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23070b14'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f59e0b'/%3E%3Cstop offset='1' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2309090b'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=1">
-  <script src="assets/app.js?v=1" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=2">
+  <script src="assets/app.js?v=2" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -31,6 +31,7 @@
       <nav class="header-nav" aria-label="Primary Navigation">
         <a class="nav-link" href="#pattern-advisor">Pattern Advisor</a>
         <a class="nav-link" href="#blueprints">Blueprints</a>
+        <a class="nav-link" href="#readiness-audit">Readiness Audit</a>
         <a class="nav-link" href="#dev-utilities">Dev Utilities</a>
         <a class="nav-link" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 Q&amp;A ↗</a>
       </nav>
@@ -52,24 +53,24 @@
     <!-- Hero -->
     <section class="hero">
       <div class="container">
-        <div class="hero-badge">Enterprise Integration Architect Workbench · 100% Offline &amp; Free</div>
-        <h1>Design Resilient <span class="grad-text">Enterprise Integrations</span> Without Guesswork</h1>
+        <div class="hero-badge"><span class="hero-dot" aria-hidden="true"></span> Vendor-Neutral Integration Workbench · 100% Offline</div>
+        <h1>Architect Resilient <span class="grad-text">Enterprise Integrations</span> Without Guesswork</h1>
         <p class="hero-lead">
-          Vendor-neutral architecture decision engine, copy-ready Markdown ADRs, production reference blueprints, and privacy-safe browser utilities — spanning <strong>MuleSoft, Salesforce, SAP S/4HANA, AWS, Kafka/MQ, and AI/MCP</strong>.
+          Interactive pattern decision engine, copy-ready Markdown ADRs, a 60-second production readiness audit, reference blueprints, and privacy-safe browser utilities — across <strong>MuleSoft, Salesforce, SAP S/4HANA, AWS, Kafka/MQ, and AI/MCP</strong>.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#pattern-advisor">⚡ Launch Pattern Advisor</a>
-          <a class="btn" href="#blueprints">📐 Reference Blueprints</a>
+          <a class="btn" href="#readiness-audit">🛡️ 60s Readiness Audit</a>
           <a class="btn" href="#dev-utilities">🛠️ Offline Dev Utilities</a>
           <a class="btn" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">📘 MuleSoft 268 Q&amp;A Hub ↗</a>
         </div>
         <div class="stack-pills">
           <span class="pill">API-Led Connectivity</span>
-          <span class="pill">Event-Driven (Kafka · Anypoint MQ · SQS)</span>
+          <span class="pill">Kafka · Anypoint MQ · SQS</span>
           <span class="pill">Salesforce ↔ SAP S/4HANA</span>
           <span class="pill">CloudHub 2.0 &amp; Kubernetes</span>
           <span class="pill">AI Agents · MCP · Model Proxy</span>
-          <span class="pill">Zero Data Sent to Any Server</span>
+          <span class="pill">Zero Data Leaves Your Browser</span>
         </div>
       </div>
     </section>
@@ -82,9 +83,17 @@
             <div>
               <div class="section-kicker">01 · Interactive Decision Engine</div>
               <h2>Integration Pattern Advisor &amp; ADR Generator</h2>
-              <p>Select your workload constraints to get the recommended enterprise pattern, cross-platform mapping, anti-patterns to avoid, and a 1-click Markdown ADR for Confluence or GitHub.</p>
+              <p>Pick a quick real-world preset or tune the 5 workload constraints to generate the recommended enterprise pattern, SLA expectations, cross-platform mapping, and a 1-click Markdown ADR.</p>
             </div>
             <button type="button" class="fs-btn" onclick="toggleSectionFs('advisor-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="preset-row" aria-label="Quick Scenario Presets">
+            <span class="preset-label">Presets:</span>
+            <button type="button" class="preset-chip" onclick="applyAdvisorPreset('spike', this)">🚀 E-Commerce Order Spike</button>
+            <button type="button" class="preset-chip" onclick="applyAdvisorPreset('sfsap', this)">🔄 Salesforce ↔ SAP Sync</button>
+            <button type="button" class="preset-chip" onclick="applyAdvisorPreset('etl', this)">📦 5M-Row Nightly ETL</button>
+            <button type="button" class="preset-chip" onclick="applyAdvisorPreset('aimcp', this)">🤖 Enterprise AI / MCP</button>
           </div>
 
           <div class="controls-grid">
@@ -133,6 +142,7 @@
             </div>
           </div>
 
+          <div class="sla-strip" id="adv-sla-strip"></div>
           <div class="flow-strip" id="adv-flow" aria-label="Recommended Architecture Flow"></div>
 
           <div class="toolbar-row">
@@ -207,15 +217,43 @@
       </div>
     </section>
 
-    <!-- 3. Daily Offline Enterprise Dev Utilities -->
+    <!-- 3. 60-Second Production Readiness Audit -->
+    <section class="section" id="readiness-audit">
+      <div class="container">
+        <div class="section-card" id="score-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">03 · Interactive Go-Live Checklist</div>
+              <h2>60-Second Integration Readiness Scorecard</h2>
+              <p>Check what your current API or event-driven integration enforces before go-live to spot hidden outage risks and get a shareable scorecard.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('score-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="score-layout">
+            <div class="check-grid" id="score-checks"></div>
+            <div class="score-panel">
+              <div class="section-kicker" style="margin-bottom:8px;">Production Resilience Score</div>
+              <div class="score-num" id="score-num">50/100</div>
+              <div id="score-grade"></div>
+              <div class="score-bar-track"><div class="score-bar-fill" id="score-bar-fill" style="width:50%;"></div></div>
+              <p id="score-risk" style="font-size:0.88rem; color:var(--text-muted); margin:0 0 18px;"></p>
+              <button type="button" class="btn btn-primary btn-sm" style="width:100%;" onclick="copyScorecardShare()">🚀 Copy Shareable LinkedIn Scorecard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Daily Offline Enterprise Dev Utilities -->
     <section class="section" id="dev-utilities">
       <div class="container">
         <div class="section-card" id="util-card">
           <div class="section-head">
             <div>
-              <div class="section-kicker">03 · 100% Client-Side Safe for Corporate Data</div>
+              <div class="section-kicker">04 · 100% Client-Side Safe for Corporate Data</div>
               <h2>Daily Offline Integration Utilities</h2>
-              <p>Zero network calls — inspect OAuth2 JWT tokens, translate Unix/Quartz/Mule 4 cron schedules, and generate OpenAPI 3.0 or RAML 1.0 schemas from JSON.</p>
+              <p>Zero network calls — inspect OAuth2 JWT tokens, build Unix/Quartz/Mule 4 cron schedules, generate OpenAPI/RAML schemas, and look up HTTP retry policies.</p>
             </div>
             <button type="button" class="fs-btn" onclick="toggleSectionFs('util-card', this)">⛶ Full Screen</button>
           </div>
@@ -224,6 +262,7 @@
             <button type="button" class="seg-btn active" onclick="switchUtilTab('util-jwt', this)">🔐 JWT Inspector</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-cron', this)">⏱️ Cron / Quartz Builder</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-spec', this)">📄 JSON → OpenAPI / RAML</button>
+            <button type="button" class="seg-btn" onclick="switchUtilTab('util-http', this)">🚦 HTTP Retry Matrix</button>
           </div>
 
           <!-- JWT Tab -->
@@ -295,6 +334,29 @@
                 <label>Generated API Contract Schema</label>
                 <pre class="code-out" id="spec-output"></pre>
               </div>
+            </div>
+          </div>
+
+          <!-- HTTP Retry Matrix Tab -->
+          <div id="util-http" style="display:none; margin-top:16px;">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>HTTP Status</th>
+                    <th>Retry?</th>
+                    <th>Recommended Strategy</th>
+                    <th>DLQ / Alert Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>400 / 422</strong> Bad Request / Validation</td><td><span class="status-chip status-err">NO</span></td><td>Fail fast — payload/schema error will never succeed on retry.</td><td>Route to poison-pill DLQ; notify producer team.</td></tr>
+                  <tr><td><strong>401</strong> Unauthorized</td><td><span class="status-chip status-warn">ONCE</span></td><td>Refresh OAuth2 token cache once, then retry once.</td><td>Alert on invalid credentials / expired cert.</td></tr>
+                  <tr><td><strong>403 / 404</strong> Forbidden / Not Found</td><td><span class="status-chip status-err">NO</span></td><td>Never retry blindly — missing RBAC scope or invalid ID.</td><td>Log correlationId &amp; return canonical error.</td></tr>
+                  <tr><td><strong>408 / 429</strong> Timeout / Rate Limited</td><td><span class="status-chip status-ok">YES</span></td><td>Honor <code>Retry-After</code> header + exponential backoff + jitter.</td><td>Buffer in MQ/SQS if sustained throttling occurs.</td></tr>
+                  <tr><td><strong>500 / 502 / 503 / 504</strong> Server / Gateway</td><td><span class="status-chip status-ok">YES</span></td><td>Bounded retries (3×) with exponential backoff + circuit breaker (idempotent writes only).</td><td>Route exhausted events to replayable DLQ + PagerDuty alert.</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

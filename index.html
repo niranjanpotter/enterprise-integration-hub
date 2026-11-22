@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Integration Hub | Architecture Pattern Advisor, Blueprints &amp; Dev Utilities</title>
+  <meta name="description" content="Vendor-neutral Enterprise Integration Architecture Hub by Niranjan Potter — interactive Integration Pattern Advisor, ADR Generator, Salesforce/SAP/Cloud/AI MCP Reference Blueprints, and offline JWT, Cron, and OpenAPI/RAML utilities.">
+  <link rel="canonical" href="https://niranjanpotter.dpdns.org/">
+  <meta property="og:title" content="Enterprise Integration Hub | Architecture Patterns, Blueprints &amp; Workbench">
+  <meta property="og:description" content="Interactive Integration Pattern Advisor, Markdown ADR Generator, Reference Blueprints, and offline Enterprise Dev Utilities.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://niranjanpotter.dpdns.org/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230ea5e9'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23070b14'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=1">
+  <script src="assets/app.js?v=1" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">EI</span>
+        <span class="brand-text">
+          <span class="brand-title">Enterprise Integration Hub</span>
+          <span class="brand-sub">Architecture Patterns &amp; Workbench</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="Primary Navigation">
+        <a class="nav-link" href="#pattern-advisor">Pattern Advisor</a>
+        <a class="nav-link" href="#blueprints">Blueprints</a>
+        <a class="nav-link" href="#dev-utilities">Dev Utilities</a>
+        <a class="nav-link" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 Q&amp;A ↗</a>
+      </nav>
+
+      <div class="header-right">
+        <span class="author-pill">Curated &amp; Authored by Niranjan Potter</span>
+        <a class="icon-btn" href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" title="LinkedIn Profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://niranjanprofile.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Portfolio Website" title="Portfolio Website">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </a>
+        <button type="button" class="icon-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle Dark/Light Theme">☀️</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">Enterprise Integration Architect Workbench · 100% Offline &amp; Free</div>
+        <h1>Design Resilient <span class="grad-text">Enterprise Integrations</span> Without Guesswork</h1>
+        <p class="hero-lead">
+          Vendor-neutral architecture decision engine, copy-ready Markdown ADRs, production reference blueprints, and privacy-safe browser utilities — spanning <strong>MuleSoft, Salesforce, SAP S/4HANA, AWS, Kafka/MQ, and AI/MCP</strong>.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#pattern-advisor">⚡ Launch Pattern Advisor</a>
+          <a class="btn" href="#blueprints">📐 Reference Blueprints</a>
+          <a class="btn" href="#dev-utilities">🛠️ Offline Dev Utilities</a>
+          <a class="btn" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">📘 MuleSoft 268 Q&amp;A Hub ↗</a>
+        </div>
+        <div class="stack-pills">
+          <span class="pill">API-Led Connectivity</span>
+          <span class="pill">Event-Driven (Kafka · Anypoint MQ · SQS)</span>
+          <span class="pill">Salesforce ↔ SAP S/4HANA</span>
+          <span class="pill">CloudHub 2.0 &amp; Kubernetes</span>
+          <span class="pill">AI Agents · MCP · Model Proxy</span>
+          <span class="pill">Zero Data Sent to Any Server</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. Integration Pattern Advisor & ADR Generator -->
+    <section class="section" id="pattern-advisor">
+      <div class="container">
+        <div class="section-card" id="advisor-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">01 · Interactive Decision Engine</div>
+              <h2>Integration Pattern Advisor &amp; ADR Generator</h2>
+              <p>Select your workload constraints to get the recommended enterprise pattern, cross-platform mapping, anti-patterns to avoid, and a 1-click Markdown ADR for Confluence or GitHub.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('advisor-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="controls-grid">
+            <div class="field">
+              <label for="adv-mode">Interaction Model</label>
+              <select id="adv-mode">
+                <option value="sync">Sync Request-Reply</option>
+                <option value="async" selected>Async Event-Driven</option>
+                <option value="bulk">Bulk / Batch ETL</option>
+                <option value="bidir">Bidirectional Sync</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adv-volume">Peak Volume</label>
+              <select id="adv-volume">
+                <option value="low">Low (&lt; 10 TPS)</option>
+                <option value="med" selected>Medium (10–200 TPS)</option>
+                <option value="high">High (200+ TPS / Millions)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adv-delivery">Delivery &amp; Ordering</label>
+              <select id="adv-delivery">
+                <option value="best">Best Effort</option>
+                <option value="atleast" selected>At-Least-Once + Retry</option>
+                <option value="fifo">Strict FIFO + Idempotent</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adv-eco">Target Ecosystem</label>
+              <select id="adv-eco">
+                <option value="sf-sap" selected>Salesforce + SAP ERP</option>
+                <option value="aws">Cloud-Native AWS / Microservices</option>
+                <option value="legacy">Legacy On-Prem DB / Mainframe</option>
+                <option value="ai-mcp">AI Agents &amp; LLM (MCP)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adv-priority">Primary Priority</label>
+              <select id="adv-priority">
+                <option value="audit" selected>Zero Data Loss &amp; Audit</option>
+                <option value="latency">Lowest Latency</option>
+                <option value="cost">Lowest Infrastructure Cost</option>
+                <option value="speed">Fastest Time to Market</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flow-strip" id="adv-flow" aria-label="Recommended Architecture Flow"></div>
+
+          <div class="toolbar-row">
+            <div class="seg-group" id="adv-audience-group" role="tablist" aria-label="Audience View">
+              <button type="button" class="seg-btn active" onclick="setAdvisorAudience('architect', this)">🏛️ Architect View</button>
+              <button type="button" class="seg-btn" onclick="setAdvisorAudience('exec', this)">💼 Executive / CTO View</button>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="copyAdrMarkdown()">📋 Copy Markdown ADR</button>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-box">
+              <h3>1. Recommended Pattern</h3>
+              <div class="big-val" id="adv-pattern-title"></div>
+              <p>Vendor-neutral enterprise blueprint tailored to your selected constraints.</p>
+            </div>
+            <div class="result-box">
+              <h3 id="adv-why-label">2. Architectural Rationale</h3>
+              <p id="adv-why"></p>
+            </div>
+            <div class="result-box">
+              <h3>3. Anti-Patterns to Avoid</h3>
+              <ul id="adv-antipatterns"></ul>
+            </div>
+            <div class="result-box">
+              <h3 id="adv-pitch-label">4. 1-Line Executive Pitch</h3>
+              <p id="adv-pitch"></p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Architecture Layer</th>
+                  <th>MuleSoft Stack</th>
+                  <th>AWS / Cloud-Native</th>
+                  <th>Enterprise Alternative</th>
+                </tr>
+              </thead>
+              <tbody id="adv-map-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Enterprise Reference Blueprints -->
+    <section class="section" id="blueprints">
+      <div class="container">
+        <div class="section-card" id="bp-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">02 · Production Reference Architectures</div>
+              <h2>Enterprise Integration Blueprints</h2>
+              <p>Battle-tested multi-system designs for CRM/ERP sync, zero-downtime cloud migration, and governed Enterprise AI.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('bp-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="seg-group" id="bp-tabs" role="tablist" aria-label="Reference Blueprints">
+            <button type="button" class="seg-btn active" onclick="selectBlueprint('sf-sap', this)">Salesforce ↔ SAP Sync</button>
+            <button type="button" class="seg-btn" onclick="selectBlueprint('cloud-mig', this)">Zero-Downtime Cloud Migration</button>
+            <button type="button" class="seg-btn" onclick="selectBlueprint('ai-mcp', this)">Enterprise AI &amp; MCP Gateway</button>
+          </div>
+
+          <h3 id="bp-title" style="margin:18px 0 6px; font-size:1.2rem;"></h3>
+          <p id="bp-summary" style="margin:0; color:var(--text-muted); font-size:0.94rem;"></p>
+          <div class="bp-diagram-box" id="bp-diagram"></div>
+          <div class="bp-meta-grid" id="bp-cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Daily Offline Enterprise Dev Utilities -->
+    <section class="section" id="dev-utilities">
+      <div class="container">
+        <div class="section-card" id="util-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">03 · 100% Client-Side Safe for Corporate Data</div>
+              <h2>Daily Offline Integration Utilities</h2>
+              <p>Zero network calls — inspect OAuth2 JWT tokens, translate Unix/Quartz/Mule 4 cron schedules, and generate OpenAPI 3.0 or RAML 1.0 schemas from JSON.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('util-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="seg-group" id="util-tabs" role="tablist" aria-label="Offline Utilities">
+            <button type="button" class="seg-btn active" onclick="switchUtilTab('util-jwt', this)">🔐 JWT Inspector</button>
+            <button type="button" class="seg-btn" onclick="switchUtilTab('util-cron', this)">⏱️ Cron / Quartz Builder</button>
+            <button type="button" class="seg-btn" onclick="switchUtilTab('util-spec', this)">📄 JSON → OpenAPI / RAML</button>
+          </div>
+
+          <!-- JWT Tab -->
+          <div id="util-jwt" style="margin-top:16px;">
+            <div class="toolbar-row">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-sm" onclick="loadSampleJwt()">Load Sample OAuth2 JWT</button>
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('jwt-input').value=''; inspectJwt();">Clear</button>
+              </div>
+              <div id="jwt-status"></div>
+            </div>
+            <div class="util-grid">
+              <div class="field">
+                <label for="jwt-input">Encoded JWT Token</label>
+                <textarea id="jwt-input" oninput="inspectJwt()" placeholder="Paste eyJhbGciOi... here"></textarea>
+              </div>
+              <div class="field">
+                <label>Decoded Header, Claims &amp; Security Audit</label>
+                <pre class="code-out" id="jwt-output"></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cron Tab -->
+          <div id="util-cron" style="display:none; margin-top:16px;">
+            <div class="toolbar-row">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-sm" onclick="applyCronPreset('0 */5 * * * ?')">Every 5 min (Quartz)</button>
+                <button type="button" class="btn btn-sm" onclick="applyCronPreset('0 0 2 * * ?')">Nightly 2 AM (Quartz)</button>
+                <button type="button" class="btn btn-sm" onclick="applyCronPreset('0 0 9 ? * MON-FRI')">Weekdays 9 AM (Quartz)</button>
+                <button type="button" class="btn btn-sm" onclick="applyCronPreset('*/15 * * * *')">Every 15 min (Unix)</button>
+              </div>
+            </div>
+            <div class="util-grid">
+              <div class="field">
+                <label for="cron-input">Cron Expression (5-field Unix or 6-field Quartz / Mule 4)</label>
+                <input id="cron-input" type="text" value="0 */5 * * * ?" oninput="explainCron()">
+              </div>
+              <div class="field">
+                <label>Human Translation &amp; Mule 4 Scheduler Snippet</label>
+                <pre class="code-out" id="cron-output"></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spec Tab -->
+          <div id="util-spec" style="display:none; margin-top:16px;">
+            <div class="toolbar-row">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="generateSpec('oas')">Generate OpenAPI 3.0</button>
+                <button type="button" class="btn btn-sm" onclick="generateSpec('raml')">Generate RAML 1.0</button>
+              </div>
+              <button type="button" class="btn btn-sm" onclick="copySpecOutput()">📋 Copy Schema</button>
+            </div>
+            <div class="util-grid">
+              <div class="field">
+                <label for="spec-input">Sample JSON Payload</label>
+                <textarea id="spec-input">{
+  "orderId": "ORD-2026-9041",
+  "customerId": "CUST-4421",
+  "amount": 1499.5,
+  "priority": true,
+  "items": [
+    { "sku": "MULE-CH2", "qty": 2 }
+  ]
+}</textarea>
+              </div>
+              <div class="field">
+                <label>Generated API Contract Schema</label>
+                <pre class="code-out" id="spec-output"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>Enterprise Integration Hub</strong> · Curated &amp; Authored by Niranjan Potter
+        <div style="margin-top:4px;">Official Contact: <a href="mailto:niranjan@niranjanpotter.dpdns.org">niranjan@niranjanpotter.dpdns.org</a></div>
+      </div>
+      <div class="footer-links">
+        <a href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 Q&amp;A Hub</a>
+        <a href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://niranjanprofile.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

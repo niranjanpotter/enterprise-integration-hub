@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enterprise Integration Hub | Pattern Advisor, Readiness Audit &amp; Dev Utilities</title>
-  <meta name="description" content="Vendor-neutral Enterprise Integration Architecture Hub by Niranjan Potter — interactive Integration Pattern Advisor, Markdown ADR Generator, Reference Blueprints, 60-Second Readiness Scorecard, and offline JWT, Cron, OpenAPI/RAML &amp; HTTP Retry Matrix.">
+  <title>Enterprise Integration Hub | Pattern Advisor, Delivery Estimator &amp; Dev Workbench</title>
+  <meta name="description" content="Vendor-neutral Enterprise Integration Architecture Hub by Niranjan Potter — Pattern Advisor, Markdown ADR Generator, Delivery Sprint Estimator, Reference Blueprints, Readiness Scorecard, and offline Dev Utilities.">
   <link rel="canonical" href="https://niranjanpotter.dpdns.org/">
-  <meta property="og:title" content="Enterprise Integration Hub | Architecture Patterns, Blueprints &amp; Workbench">
-  <meta property="og:description" content="Interactive Integration Pattern Advisor, Markdown ADR Generator, Readiness Scorecard, and offline Enterprise Dev Utilities.">
+  <meta property="og:title" content="Enterprise Integration Hub | Patterns, Delivery Estimator &amp; Workbench">
+  <meta property="og:description" content="Interactive Integration Pattern Advisor, Delivery Sprint Estimator, Reference Blueprints, Readiness Scorecard, and offline Enterprise Dev Utilities.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://niranjanpotter.dpdns.org/">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f59e0b'/%3E%3Cstop offset='1' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2309090b'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=2">
-  <script src="assets/app.js?v=2" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=3">
+  <script src="assets/app.js?v=3" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -24,16 +24,17 @@
         <span class="brand-mark" aria-hidden="true">EI</span>
         <span class="brand-text">
           <span class="brand-title">Enterprise Integration Hub</span>
-          <span class="brand-sub">Architecture Patterns &amp; Workbench</span>
+          <span class="brand-sub">Architecture &amp; Delivery Workbench</span>
         </span>
       </a>
 
       <nav class="header-nav" aria-label="Primary Navigation">
         <a class="nav-link" href="#pattern-advisor">Pattern Advisor</a>
         <a class="nav-link" href="#blueprints">Blueprints</a>
-        <a class="nav-link" href="#readiness-audit">Readiness Audit</a>
-        <a class="nav-link" href="#dev-utilities">Dev Utilities</a>
-        <a class="nav-link" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 Q&amp;A ↗</a>
+        <a class="nav-link" href="#delivery-estimator">Delivery Estimator</a>
+        <a class="nav-link" href="#readiness-audit">Readiness</a>
+        <a class="nav-link" href="#dev-utilities">Utilities</a>
+        <a class="nav-link" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">MuleSoft 268 ↗</a>
       </nav>
 
       <div class="header-right">
@@ -45,8 +46,22 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </a>
         <button type="button" class="icon-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle Dark/Light Theme">☀️</button>
+        <button type="button" class="icon-btn mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
       </div>
     </div>
+
+    <!-- Mobile & Tablet Navigation Drawer -->
+    <nav class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
+      <div class="mobile-nav-list">
+        <a href="#pattern-advisor" onclick="toggleMobileNav(false)">⚡ Pattern Advisor</a>
+        <a href="#blueprints" onclick="toggleMobileNav(false)">📐 Blueprints</a>
+        <a href="#delivery-estimator" onclick="toggleMobileNav(false)">📋 Delivery Estimator</a>
+        <a href="#readiness-audit" onclick="toggleMobileNav(false)">🛡️ Readiness Audit</a>
+        <a href="#dev-utilities" onclick="toggleMobileNav(false)">🛠️ Dev Utilities</a>
+        <a href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer" onclick="toggleMobileNav(false)">📘 MuleSoft 268 ↗</a>
+      </div>
+      <div class="mobile-author-strip">Curated &amp; Authored by Niranjan Potter</div>
+    </nav>
   </header>
 
   <main id="top">
@@ -54,14 +69,14 @@
     <section class="hero">
       <div class="container">
         <div class="hero-badge"><span class="hero-dot" aria-hidden="true"></span> Vendor-Neutral Integration Workbench · 100% Offline</div>
-        <h1>Architect Resilient <span class="grad-text">Enterprise Integrations</span> Without Guesswork</h1>
+        <h1>Architect &amp; Deliver <span class="grad-text">Enterprise Integrations</span> Without Guesswork</h1>
         <p class="hero-lead">
-          Interactive pattern decision engine, copy-ready Markdown ADRs, a 60-second production readiness audit, reference blueprints, and privacy-safe browser utilities — across <strong>MuleSoft, Salesforce, SAP S/4HANA, AWS, Kafka/MQ, and AI/MCP</strong>.
+          Built for <strong>Integration Architects, Delivery Managers, Engineers &amp; CTOs</strong> — interactive pattern advisor, Markdown ADRs, sprint effort estimator, production blueprints, readiness audit, and privacy-safe browser utilities across <strong>MuleSoft, Salesforce, SAP S/4HANA, AWS, Kafka/MQ &amp; AI/MCP</strong>.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#pattern-advisor">⚡ Launch Pattern Advisor</a>
+          <a class="btn" href="#delivery-estimator">📋 Delivery Estimator</a>
           <a class="btn" href="#readiness-audit">🛡️ 60s Readiness Audit</a>
-          <a class="btn" href="#dev-utilities">🛠️ Offline Dev Utilities</a>
           <a class="btn" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">📘 MuleSoft 268 Q&amp;A Hub ↗</a>
         </div>
         <div class="stack-pills">
@@ -83,7 +98,7 @@
             <div>
               <div class="section-kicker">01 · Interactive Decision Engine</div>
               <h2>Integration Pattern Advisor &amp; ADR Generator</h2>
-              <p>Pick a quick real-world preset or tune the 5 workload constraints to generate the recommended enterprise pattern, SLA expectations, cross-platform mapping, and a 1-click Markdown ADR.</p>
+              <p>Pick a quick real-world preset or tune the 5 workload constraints to generate the recommended enterprise pattern, SLA targets, cross-platform mapping, and a 1-click Markdown ADR.</p>
             </div>
             <button type="button" class="fs-btn" onclick="toggleSectionFs('advisor-card', this)">⛶ Full Screen</button>
           </div>
@@ -148,7 +163,8 @@
           <div class="toolbar-row">
             <div class="seg-group" id="adv-audience-group" role="tablist" aria-label="Audience View">
               <button type="button" class="seg-btn active" onclick="setAdvisorAudience('architect', this)">🏛️ Architect View</button>
-              <button type="button" class="seg-btn" onclick="setAdvisorAudience('exec', this)">💼 Executive / CTO View</button>
+              <button type="button" class="seg-btn" onclick="setAdvisorAudience('delivery', this)">📋 Delivery Manager</button>
+              <button type="button" class="seg-btn" onclick="setAdvisorAudience('exec', this)">💼 Executive / CTO</button>
             </div>
             <button type="button" class="btn btn-primary btn-sm" onclick="copyAdrMarkdown()">📋 Copy Markdown ADR</button>
           </div>
@@ -217,13 +233,63 @@
       </div>
     </section>
 
-    <!-- 3. 60-Second Production Readiness Audit -->
+    <!-- 3. Integration Delivery Manager Sprint & Effort Estimator -->
+    <section class="section" id="delivery-estimator">
+      <div class="container">
+        <div class="section-card" id="delivery-card">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">03 · For Delivery Managers &amp; Architects</div>
+              <h2>Integration Delivery &amp; Sprint Estimator</h2>
+              <p>Size API-led delivery timelines, QA/NFR buffers, and delivery risk for RFPs, SOWs, and executive planning calls — 100% offline.</p>
+            </div>
+            <button type="button" class="fs-btn" onclick="toggleSectionFs('delivery-card', this)">⛶ Full Screen</button>
+          </div>
+
+          <div class="controls-grid-4">
+            <div class="field">
+              <label for="del-systems">Connected Systems (1–20)</label>
+              <input id="del-systems" type="number" min="1" max="20" value="3">
+            </div>
+            <div class="field">
+              <label for="del-complexity">Payload &amp; ERP Complexity</label>
+              <select id="del-complexity">
+                <option value="simple">Simple REST / JSON</option>
+                <option value="std" selected>Standard Multi-System</option>
+                <option value="erp">Enterprise ERP (SAP / Legacy)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="del-security">Security &amp; Compliance</label>
+              <select id="del-security">
+                <option value="oauth">Standard OAuth2 / JWT</option>
+                <option value="mtls" selected>mTLS + Private Space / VPC</option>
+                <option value="pci">PCI-DSS / HIPAA / Audit</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="del-devs">Integration Engineers (1–10)</label>
+              <input id="del-devs" type="number" min="1" max="10" value="2">
+            </div>
+          </div>
+
+          <div class="kpi-grid-4" id="del-kpis"></div>
+
+          <div class="toolbar-row" style="margin-bottom:0;">
+            <span style="font-size:0.84rem; color:var(--text-muted);">Assumes 2-week sprints, 85%+ automated unit/MUnit coverage, and CI/CD pipeline setup.</span>
+            <button type="button" class="btn btn-primary btn-sm" onclick="copyDeliveryEstimate()">📋 Copy SOW / Delivery Estimate</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 60-Second Production Readiness Audit -->
     <section class="section" id="readiness-audit">
       <div class="container">
         <div class="section-card" id="score-card">
           <div class="section-head">
             <div>
-              <div class="section-kicker">03 · Interactive Go-Live Checklist</div>
+              <div class="section-kicker">04 · Interactive Go-Live Checklist</div>
               <h2>60-Second Integration Readiness Scorecard</h2>
               <p>Check what your current API or event-driven integration enforces before go-live to spot hidden outage risks and get a shareable scorecard.</p>
             </div>
@@ -245,13 +311,13 @@
       </div>
     </section>
 
-    <!-- 4. Daily Offline Enterprise Dev Utilities -->
+    <!-- 5. Daily Offline Enterprise Dev Utilities -->
     <section class="section" id="dev-utilities">
       <div class="container">
         <div class="section-card" id="util-card">
           <div class="section-head">
             <div>
-              <div class="section-kicker">04 · 100% Client-Side Safe for Corporate Data</div>
+              <div class="section-kicker">05 · 100% Client-Side Safe for Corporate Data</div>
               <h2>Daily Offline Integration Utilities</h2>
               <p>Zero network calls — inspect OAuth2 JWT tokens, build Unix/Quartz/Mule 4 cron schedules, generate OpenAPI/RAML schemas, and look up HTTP retry policies.</p>
             </div>

@@ -12,6 +12,16 @@
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2400);
   }
 
+  /* ===== Mobile Nav Drawer ===== */
+  window.toggleMobileNav = function (forceState) {
+    var drawer = document.getElementById('mobile-nav-drawer');
+    var btn = document.getElementById('mobile-menu-btn');
+    if (!drawer) return;
+    var next = typeof forceState === 'boolean' ? forceState : !drawer.classList.contains('open');
+    drawer.classList.toggle('open', next);
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+  };
+
   /* ===== Theme Toggle ===== */
   var savedTheme = localStorage.getItem('eih_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -59,8 +69,11 @@
   };
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && activeFsEl && activeFsBtn) {
-      window.toggleSectionFs(activeFsEl.id, activeFsBtn);
+    if (e.key === 'Escape') {
+      window.toggleMobileNav(false);
+      if (activeFsEl && activeFsBtn) {
+        window.toggleSectionFs(activeFsEl.id, activeFsBtn);
+      }
     }
   });
 
@@ -86,7 +99,7 @@
   };
 
   function computeRecommendation(mode, volume, delivery, eco, priority) {
-    var title = '', flow = [], why = '', execPitch = '', antipatterns = [], mapping = [];
+    var title = '', flow = [], why = '', execPitch = '', deliveryPlan = '', antipatterns = [], mapping = [];
     var sla = { latency: '150–400ms', resilience: '99.95%', complexity: 'Medium' };
 
     if (eco === 'ai-mcp') {
@@ -101,6 +114,7 @@
       ];
       why = 'Decouples autonomous AI agents from core systems using Model Context Protocol (MCP), enforces PII redaction and token budgets at the gateway, and cuts LLM latency/cost via semantic caching and multi-provider fallback.';
       execPitch = 'Protects enterprise data from LLM leakage while reducing AI inference costs by 35–60% and eliminating vendor lock-in across OpenAI, Anthropic, and Gemini.';
+      deliveryPlan = 'Estimated 2–3 sprints (1 Architect + 2 Integration Devs). Critical path: InfoSec PII redaction sign-off, MCP tool schema contracts, and LLM quota/fallback chaos testing.';
       antipatterns = [
         'Allowing AI agents to query ERP/CRM databases directly without an API/MCP governance layer.',
         'Hardcoding a single LLM provider without circuit-breaker fallback or token rate limits.',
@@ -123,6 +137,7 @@
       ];
       why = 'Streams high-volume datasets without exhausting JVM/container memory, avoids synchronous API rate-limit exhaustion, and persists watermarks + per-record error isolation so failed slices can replay cleanly.';
       execPitch = 'Processes millions of records predictably within overnight SLA windows with zero duplicate writes and automatic partial-failure recovery.';
+      deliveryPlan = 'Estimated 2 sprints (1 Lead + 1 Dev + 1 QA). Critical path: production-sized 1M-row staging dataset for heap/GC soak tests and reconciliation report sign-off.';
       antipatterns = [
         'Using synchronous row-by-row REST calls inside a loop for >10,000 records.',
         'Loading entire multi-GB CSV/JSON files into heap memory instead of streaming.',
@@ -145,6 +160,7 @@
       ];
       why = 'Eliminates polling overhead and infinite echo loops by tagging service-account writes (or payload hashes + correlation IDs) in a shared idempotency store before propagating updates to the opposite system.';
       execPitch = 'Keeps CRM and ERP records synchronized in near real time while preventing catastrophic infinite-loop API storms and billing spikes.';
+      deliveryPlan = 'Estimated 3–4 sprints (1 Architect + 2 Devs + CRM/SAP Admins). Critical path: field-level System-of-Record ownership matrix, dedicated integration service users, and loop-storm UAT drill.';
       antipatterns = [
         'Syncing two systems without filtering integration-user updates (causes infinite echo loops).',
         'Relying solely on timestamps without deterministic conflict resolution (System-of-Record rules).',
@@ -167,6 +183,7 @@
       ];
       why = 'Absorbs traffic spikes via asynchronous buffering, returns fast 202 Accepted acknowledgments to callers, preserves strict partition ordering where required, and isolates downstream outages inside a replayable Dead-Letter Queue.';
       execPitch = 'Guarantees zero lost orders even when downstream ERP/payment vendors experience outages or 10× peak traffic surges.';
+      deliveryPlan = 'Estimated 2–3 sprints (1 Architect + 2 Devs + DevOps). Critical path: queue/DLQ Terraform provisioning, consumer concurrency load testing, and ops replay runbook handover.';
       antipatterns = [
         'Holding open synchronous HTTP threads while waiting on slow (>3s) downstream systems.',
         'Using unbounded retries without exponential backoff or a Dead-Letter Queue (poison-pill loop).',
@@ -189,6 +206,7 @@
       ];
       why = 'Delivers sub-second responses by executing independent downstream calls in parallel, caching read-heavy reference data, and shielding legacy backends with timeouts, retries, and graceful fallback responses.';
       execPitch = 'Cuts customer-facing response latency by 40–60% while keeping every downstream system reusable across web, mobile, and partner channels.';
+      deliveryPlan = 'Estimated 1–2 sprints (2 Integration Devs + 1 QA). Critical path: contract-first OpenAPI/RAML approval, OAuth2 client provisioning, and P95 load testing.';
       antipatterns = [
         'Chaining 4+ synchronous backend calls sequentially instead of fanning out in parallel.',
         'Exposing raw ERP/CRM table schemas directly to mobile or partner apps (tight coupling).',
@@ -209,7 +227,7 @@
       why += ' Cost focus: right-size fractional replicas/serverless concurrency, cache repetitive reads, and avoid unnecessary 24/7 idle clusters.';
     }
 
-    return { title: title, sla: sla, flow: flow, why: why, execPitch: execPitch, antipatterns: antipatterns, mapping: mapping };
+    return { title: title, sla: sla, flow: flow, why: why, execPitch: execPitch, deliveryPlan: deliveryPlan, antipatterns: antipatterns, mapping: mapping };
   }
 
   var lastAdrMarkdown = '';
@@ -228,23 +246,30 @@
       '<div class="sla-pill">Resilience Tier: <span>' + rec.sla.resilience + '</span></div>' +
       '<div class="sla-pill">Ops Complexity: <span>' + rec.sla.complexity + '</span></div>';
 
-    var flowEl = document.getElementById('adv-flow');
-    flowEl.innerHTML = rec.flow.map(function (n, idx) {
+    document.getElementById('adv-flow').innerHTML = rec.flow.map(function (n, idx) {
       return '<div class="flow-node"><div class="flow-node-tag">' + n[0] + '</div><div class="flow-node-name">' + n[1] + '</div></div>' +
         (idx < rec.flow.length - 1 ? '<div class="flow-arrow" aria-hidden="true">→</div>' : '');
     }).join('');
 
     document.getElementById('adv-pattern-title').textContent = rec.title;
-    document.getElementById('adv-why').textContent = advisorAudience === 'exec' ? rec.execPitch : rec.why;
-    document.getElementById('adv-why-label').textContent = advisorAudience === 'exec' ? '2. Executive / CTO Business Value' : '2. Architectural Rationale';
+    if (advisorAudience === 'delivery') {
+      document.getElementById('adv-why-label').textContent = '2. Delivery Plan & Critical Path';
+      document.getElementById('adv-why').textContent = rec.deliveryPlan;
+      document.getElementById('adv-pitch-label').textContent = '4. Go-Live Readiness Gate';
+      document.getElementById('adv-pitch').textContent = 'Gate production cutover on: 85%+ automated unit/MUnit coverage, 2× peak load test pass, DLQ replay drill, and signed-off ops alert runbook.';
+    } else if (advisorAudience === 'exec') {
+      document.getElementById('adv-why-label').textContent = '2. Executive / CTO Business Value';
+      document.getElementById('adv-why').textContent = rec.execPitch;
+      document.getElementById('adv-pitch-label').textContent = '4. Delivery & Governance Next Step';
+      document.getElementById('adv-pitch').textContent = 'Approve a 2-week reference spike validating throughput, failover, and correlation telemetry before full program rollout.';
+    } else {
+      document.getElementById('adv-why-label').textContent = '2. Architectural Rationale';
+      document.getElementById('adv-why').textContent = rec.why;
+      document.getElementById('adv-pitch-label').textContent = '4. 1-Line Executive Pitch';
+      document.getElementById('adv-pitch').textContent = rec.execPitch;
+    }
 
     document.getElementById('adv-antipatterns').innerHTML = rec.antipatterns.map(function (a) { return '<li>' + a + '</li>'; }).join('');
-
-    document.getElementById('adv-pitch').textContent = advisorAudience === 'exec'
-      ? 'Recommended next step: approve a 2-week reference spike validating throughput, failover, and correlation telemetry before full rollout.'
-      : rec.execPitch;
-    document.getElementById('adv-pitch-label').textContent = advisorAudience === 'exec' ? '4. Delivery & Governance Next Step' : '4. 1-Line Executive Pitch';
-
     document.getElementById('adv-map-body').innerHTML = rec.mapping.map(function (row) {
       return '<tr><td><strong>' + row[0] + '</strong></td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>';
     }).join('');
@@ -259,6 +284,9 @@
       '',
       '## Decision',
       rec.why,
+      '',
+      '## Delivery Plan',
+      rec.deliveryPlan,
       '',
       '## Executive Value',
       rec.execPitch,
@@ -387,9 +415,7 @@
   window.selectBlueprint = function (key, btn) {
     var bp = BLUEPRINTS[key];
     if (!bp) return;
-    document.querySelectorAll('#bp-tabs .seg-btn').forEach(function (b) {
-      b.classList.toggle('active', b === btn);
-    });
+    document.querySelectorAll('#bp-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
     document.getElementById('bp-title').textContent = bp.title;
     document.getElementById('bp-summary').textContent = bp.summary;
     document.getElementById('bp-diagram').innerHTML = bp.svg;
@@ -398,7 +424,50 @@
     }).join('');
   };
 
-  /* ===== 3. Production Readiness & Resilience Scorecard ===== */
+  /* ===== 3. Delivery Manager Sprint & Effort Estimator ===== */
+  var lastDeliveryMd = '';
+  window.updateDeliveryEstimator = function () {
+    var systems = Math.max(1, Math.min(20, Number(document.getElementById('del-systems').value) || 2));
+    var comp = document.getElementById('del-complexity').value;
+    var sec = document.getElementById('del-security').value;
+    var devs = Math.max(1, Math.min(10, Number(document.getElementById('del-devs').value) || 2));
+
+    var mult = comp === 'erp' ? 1.7 : (comp === 'std' ? 1.2 : 0.85);
+    var secDays = sec === 'pci' ? 8 : (sec === 'mtls' ? 4 : 1);
+    var apiCount = systems + Math.max(1, Math.ceil(systems / 2)) + 1; // SAPIs + PAPIs + XAPI
+    var devDays = Math.round((apiCount * 5.5 * mult) + secDays);
+    var qaDays = Math.round(devDays * 0.35);
+    var totalDays = devDays + qaDays;
+    var sprints = Math.max(1, Math.ceil(totalDays / (devs * 8.5)));
+    var risk = (comp === 'erp' || sec === 'pci' || systems >= 5) ? 'HIGH — Run 1-Sprint Architecture Spike First' : (systems >= 3 ? 'MEDIUM — Lock Contracts Early' : 'LOW — Standard Agile Track');
+
+    document.getElementById('del-kpis').innerHTML =
+      '<div class="result-box"><h3>Estimated Timeline</h3><div class="kpi-val">' + sprints + ' Sprint' + (sprints > 1 ? 's' : '') + '</div><p>' + (sprints * 2) + ' weeks (' + totalDays + ' person-days incl. QA/NFR)</p></div>' +
+      '<div class="result-box"><h3>Recommended APIs</h3><div class="kpi-val">' + apiCount + ' APIs</div><p>1 XAPI · ' + Math.max(1, Math.ceil(systems / 2)) + ' PAPI · ' + systems + ' SAPI</p></div>' +
+      '<div class="result-box"><h3>Test &amp; NFR Buffer</h3><div class="kpi-val">' + qaDays + ' Days</div><p>Unit/MUnit (85%+), Perf Load &amp; Failover</p></div>' +
+      '<div class="result-box"><h3>Delivery Risk</h3><div class="big-val" style="font-size:0.96rem;">' + risk + '</div><p>Team: ' + devs + ' Eng + Shared Architect</p></div>';
+
+    lastDeliveryMd = [
+      '# Integration Delivery Estimate',
+      '- **Connected Systems:** ' + systems + ' | **Complexity:** ' + comp.toUpperCase() + ' | **Security:** ' + sec.toUpperCase() + ' | **Team:** ' + devs + ' Engineers',
+      '- **Estimated Timeline:** ' + sprints + ' Sprints (' + (sprints * 2) + ' weeks / ' + totalDays + ' person-days)',
+      '- **Recommended API Scope:** ' + apiCount + ' APIs (1 XAPI + ' + Math.max(1, Math.ceil(systems / 2)) + ' PAPI + ' + systems + ' SAPI)',
+      '- **QA & NFR Buffer:** ' + qaDays + ' person-days (85%+ unit coverage, load test, DLQ replay drill)',
+      '- **Risk Assessment:** ' + risk,
+      '_Generated via Enterprise Integration Hub (https://niranjanpotter.dpdns.org)_'
+    ].join('\n');
+  };
+
+  window.copyDeliveryEstimate = function () {
+    if (!lastDeliveryMd) window.updateDeliveryEstimator();
+    navigator.clipboard.writeText(lastDeliveryMd).then(function () {
+      showToast('Copied Delivery Estimate (Markdown)!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
+  /* ===== 4. Production Readiness & Resilience Scorecard ===== */
   var CHECKS = [
     { id: 'c1', title: 'Idempotency Keys on Writes', sub: 'Prevents duplicate orders/payments on retries', risk: 'Duplicate financial/ERP records during network retries' },
     { id: 'c2', title: 'Dead-Letter Queue + Replay', sub: 'Failed async messages never silently drop', risk: 'Permanent data loss when downstream systems go offline' },
@@ -427,8 +496,7 @@
 
   window.updateScorecard = function () {
     var boxes = document.querySelectorAll('#score-checks input[type="checkbox"]');
-    var checked = 0;
-    var missing = [];
+    var checked = 0, missing = [];
     boxes.forEach(function (box, idx) {
       box.closest('.check-item').classList.toggle('checked', box.checked);
       if (box.checked) checked++;
@@ -462,11 +530,9 @@
     });
   };
 
-  /* ===== 4. Offline Enterprise Dev Utilities ===== */
+  /* ===== 5. Offline Enterprise Dev Utilities ===== */
   window.switchUtilTab = function (tabId, btn) {
-    document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) {
-      b.classList.toggle('active', b === btn);
-    });
+    document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
     ['util-jwt', 'util-cron', 'util-spec', 'util-http'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = id === tabId ? 'block' : 'none';
@@ -638,8 +704,14 @@
         renderAdvisor();
       });
     });
+    ['del-systems', 'del-complexity', 'del-security', 'del-devs'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', window.updateDeliveryEstimator);
+      if (el && el.tagName === 'INPUT') el.addEventListener('input', window.updateDeliveryEstimator);
+    });
     renderAdvisor();
     window.selectBlueprint('sf-sap', document.querySelector('#bp-tabs .seg-btn'));
+    window.updateDeliveryEstimator();
     renderScorecard();
     window.loadSampleJwt();
     window.explainCron();

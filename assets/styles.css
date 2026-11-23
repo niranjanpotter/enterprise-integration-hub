@@ -754,7 +754,21 @@ tr:last-child td { border-bottom: none; }
 }
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
-  .header-ctas { display: none; }
+  .header-inner { flex-wrap: wrap; }
+  .header-ctas {
+    display: flex;
+    order: 4;
+    width: 100%;
+    gap: 8px;
+    padding-top: 6px;
+  }
+  .header-ctas .cta-sticky-primary,
+  .header-ctas .cta-sticky-secondary {
+    flex: 1 1 0;
+    font-size: 0.78rem;
+    padding: 0 10px;
+    min-height: 44px;
+  }
   .section-card, .founder-card { padding: 20px; }
   .fs-active { padding: 20px !important; }
   .section-head h2, .hero h1 { font-size: 1.75rem; }

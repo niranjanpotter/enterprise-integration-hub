@@ -595,7 +595,7 @@
   /* ===== 5. Offline Enterprise Dev Utilities ===== */
   window.switchUtilTab = function (tabId, btn) {
     document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
-    ['util-jwt', 'util-cron', 'util-spec', 'util-http'].forEach(function (id) {
+    ['util-jwt', 'util-cron', 'util-spec', 'util-http', 'util-mcp', 'util-pii'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = id === tabId ? 'block' : 'none';
     });
@@ -756,6 +756,113 @@
     });
   };
 
+  /* REST -> MCP Tool Schema Generator */
+  function jsonToJsonSchemaProps(obj) {
+    var props = {}, req = [];
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      Object.keys(obj).forEach(function (k) {
+        req.push(k);
+        var v = obj[k];
+        if (typeof v === 'number') props[k] = { type: Number.isInteger(v) ? 'integer' : 'number', description: 'Parameter ' + k };
+        else if (typeof v === 'boolean') props[k] = { type: 'boolean', description: 'Flag ' + k };
+        else if (Array.isArray(v)) props[k] = { type: 'array', items: { type: 'string' }, description: 'List of ' + k };
+        else if (v && typeof v === 'object') props[k] = { type: 'object', properties: jsonToJsonSchemaProps(v).props };
+        else props[k] = { type: 'string', description: 'Value for ' + k };
+      });
+    }
+    return { props: props, req: req };
+  }
+
+  window.generateMcpTool = function () {
+    var nameEl = document.getElementById('mcp-name');
+    var descEl = document.getElementById('mcp-desc');
+    var authEl = document.getElementById('mcp-auth');
+    var inEl = document.getElementById('mcp-input');
+    var outEl = document.getElementById('mcp-output');
+    if (!inEl || !outEl) return;
+    try {
+      var sample = JSON.parse((inEl.value || '{}').trim());
+      var parsed = jsonToJsonSchemaProps(sample);
+      var toolName = (nameEl && nameEl.value.trim()) || 'lookup_sap_order_status';
+      var toolDesc = (descEl && descEl.value.trim()) || 'Fetch live order status and delivery ETA by orderId without exposing raw ERP tables.';
+      var authMode = (authEl && authEl.value) || 'vua';
+
+      var mcpDef = {
+        name: toolName,
+        description: toolDesc,
+        inputSchema: {
+          type: 'object',
+          properties: parsed.props,
+          required: parsed.req,
+          additionalProperties: false
+        },
+        securityPolicy: authMode === 'vua'
+          ? { mode: 'VerifiedUserAccess_OAuth2', forwardEndUserToken: true, stripPiiBeforeLLM: true }
+          : { mode: 'MuleSoft_AgentFabric_ScopedJWT', gateway: 'OmniGateway', stripPiiBeforeLLM: true }
+      };
+
+      outEl.textContent =
+        '// 1. Standard MCP Tool Definition (tools/list JSON)\n' +
+        JSON.stringify(mcpDef, null, 2) +
+        '\n\n// 2. MuleSoft Agent Fabric (agent-network.yaml) Snippet\n' +
+        'tools:\n  - name: ' + toolName + '\n    protocol: mcp\n    gateway: omni-gateway\n    auth: ' + (authMode === 'vua' ? 'user-oauth-delegation' : 'scoped-jwt') + '\n    piiRedaction: enabled';
+    } catch (e) {
+      outEl.textContent = 'Fix the JSON syntax on the left first: ' + e.message;
+    }
+  };
+
+  window.copyMcpOutput = function () {
+    var txt = document.getElementById('mcp-output').textContent || '';
+    navigator.clipboard.writeText(txt).then(function () {
+      showToast('Copied MCP Tool Definition!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
+  /* Offline PII & Secret Log Scrubber + DataWeave 2.0 Masker */
+  window.scrubPiiPayload = function () {
+    var inEl = document.getElementById('pii-input');
+    var outEl = document.getElementById('pii-output');
+    if (!inEl || !outEl) return;
+    var raw = inEl.value || '';
+    var scrubbed = raw
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
+      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '****-****-****-REDACTED')
+      .replace(/\b\d{3}-\d{2}-\d{4}\b/g, '***-**-REDACTED')
+      .replace(/(Bearer\s+)[A-Za-z0-9._~+/-]+=*/gi, '$1[REDACTED_TOKEN]')
+      .replace(/("?(?:password|secret|client_secret|apiKey|ssn|pan)"?\s*:\s*")[^"]+(")/gi, '$1***REDACTED***$2');
+
+    var dwScript = [
+      '%dw 2.0',
+      'output application/json',
+      'var sensitiveKeys = ["password", "secret", "client_secret", "apiKey", "ssn", "cardNumber", "token", "email"]',
+      'fun maskPii(val) =',
+      '  val match {',
+      '    case is Object -> val mapObject ((v, k) ->',
+      '      (k): if (sensitiveKeys contains (k as String)) "***REDACTED***" else maskPii(v)',
+      '    )',
+      '    case is Array -> val map maskPii($)',
+      '    else -> val',
+      '  }',
+      '---',
+      'maskPii(payload)'
+    ].join('\n');
+
+    outEl.textContent =
+      '=== 1. SCRUBBED SAFE LOG PAYLOAD ===\n' + scrubbed +
+      '\n\n=== 2. COPY-READY DATAWEAVE 2.0 PII MASKER ===\n' + dwScript;
+  };
+
+  window.copyPiiOutput = function () {
+    var txt = document.getElementById('pii-output').textContent || '';
+    navigator.clipboard.writeText(txt).then(function () {
+      showToast('Copied Scrubbed Payload & DataWeave Script!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
   /* ===== 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) ===== */
   var RADAR_DATA = {
     agentic: {
@@ -856,6 +963,8 @@
     window.loadSampleJwt();
     window.explainCron();
     window.generateSpec('oas');
+    window.generateMcpTool();
+    window.scrubPiiPayload();
     window.selectRadarPillar('agentic', document.querySelector('#radar-tabs .seg-btn'));
   });
 })();

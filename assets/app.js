@@ -22,6 +22,36 @@
     if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
   };
 
+  /* ===== Sticky CTA Jump Helpers ===== */
+  window.jumpToJwtTool = function () {
+    window.toggleMobileNav(false);
+    var jwtTabBtn = document.querySelector('#util-tabs .seg-btn');
+    if (jwtTabBtn) window.switchUtilTab('util-jwt', jwtTabBtn);
+    var sec = document.getElementById('dev-utilities');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function () {
+      var inp = document.getElementById('jwt-input');
+      if (inp) inp.focus();
+    }, 350);
+  };
+
+  window.jumpToRadarTool = function () {
+    window.toggleMobileNav(false);
+    var sec = document.getElementById('platform-radar');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  /* ===== Radar Platform Card Expand / Collapse ===== */
+  window.toggleRadarCard = function (cardEl) {
+    if (!cardEl) return;
+    var exp = cardEl.classList.toggle('expanded');
+    var btn = cardEl.querySelector('.radar-read-more');
+    if (btn) {
+      btn.textContent = exp ? 'Show Less ↑' : 'Read More ↓';
+      btn.setAttribute('aria-expanded', exp ? 'true' : 'false');
+    }
+  };
+
   /* ===== Theme Toggle ===== */
   var savedTheme = localStorage.getItem('eih_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -112,17 +142,17 @@
         ['Protocol', 'MCP Server / Tools'],
         ['Backend', 'Enterprise System APIs']
       ];
-      why = 'Decouples autonomous AI agents from core systems using Model Context Protocol (MCP), enforces PII redaction and token budgets at the gateway, and cuts LLM latency/cost via semantic caching and multi-provider fallback.';
-      execPitch = 'Protects enterprise data from LLM leakage while reducing AI inference costs by 35–60% and eliminating vendor lock-in across OpenAI, Anthropic, and Gemini.';
-      deliveryPlan = 'Estimated 2–3 sprints (1 Architect + 2 Integration Devs). Critical path: InfoSec PII redaction sign-off, MCP tool schema contracts, and LLM quota/fallback chaos testing.';
+      why = 'Never let an AI agent query your database directly. Put an MCP proxy and gateway in front of your System APIs, strip PII before prompts leave your network, and cache repeated questions so your LLM bill doesn\'t explode. Makes sense?';
+      execPitch = 'Keeps customer PII out of public LLMs, cuts AI token bills by 35–60%, and lets you swap OpenAI, Claude, or Gemini without rewriting code.';
+      deliveryPlan = 'Plan for 2–3 sprints (1 Architect + 2 Devs). Lock down InfoSec PII redaction rules in week 1, define MCP tool schemas in week 2, and test LLM fallback limits before go-live.';
       antipatterns = [
-        'Allowing AI agents to query ERP/CRM databases directly without an API/MCP governance layer.',
-        'Hardcoding a single LLM provider without circuit-breaker fallback or token rate limits.',
-        'Logging raw prompts containing customer PII/PCI fields to observability tools.'
+        'Giving AI agents direct database credentials or a shared super-admin token.',
+        'Hardcoding a single LLM provider with no fallback or token budget cap.',
+        'Logging raw user prompts containing PII or card numbers into plain log files.'
       ];
       mapping = [
-        ['API & AI Governance', 'Anypoint Flex Gateway + AI Chain / Model Proxy', 'AWS Bedrock Guardrails + API Gateway', 'Azure AI Foundry + APIM'],
-        ['Agent Tooling', 'MuleSoft MCP Connector + Topic Center', 'AWS Lambda MCP Servers', 'OpenAPI / MCP Tool Adapters'],
+        ['API & AI Governance', 'MuleSoft Omni Gateway + Agent Fabric / Model Proxy', 'AWS Bedrock Guardrails + API Gateway', 'Azure AI Foundry + APIM'],
+        ['Agent Tooling', 'MuleSoft MCP Connector + Topic Center', 'Workato Enterprise MCP + VUA', 'OpenAPI / MCP Tool Adapters'],
         ['Audit & Telemetry', 'OpenTelemetry Direct Telemetry', 'CloudWatch + X-Ray', 'OpenTelemetry + Dynatrace / Datadog']
       ];
     } else if (mode === 'bulk') {
@@ -135,13 +165,13 @@
         ['Target API', 'Bulk API 2.0 / Staging Table'],
         ['Recovery', 'Dead-Letter Replay + Watermark']
       ];
-      why = 'Streams high-volume datasets without exhausting JVM/container memory, avoids synchronous API rate-limit exhaustion, and persists watermarks + per-record error isolation so failed slices can replay cleanly.';
-      execPitch = 'Processes millions of records predictably within overnight SLA windows with zero duplicate writes and automatic partial-failure recovery.';
-      deliveryPlan = 'Estimated 2 sprints (1 Lead + 1 Dev + 1 QA). Critical path: production-sized 1M-row staging dataset for heap/GC soak tests and reconciliation report sign-off.';
+      why = 'If you try pushing 500,000 rows through a normal REST loop, you\'ll blow up your memory or hit API limits in 10 minutes. Stream the file in chunks, upsert with an External ID, and save your watermark so a crash at row 400,000 doesn\'t start over from row 1.';
+      execPitch = 'Moves millions of records overnight within your SLA window with zero duplicate records and automatic recovery if the target system hiccups.';
+      deliveryPlan = 'Plan for 2 sprints (1 Lead + 1 Dev + 1 QA). Test early with a real 1M-row file in staging — a 100-row dev test hides every memory bug.';
       antipatterns = [
-        'Using synchronous row-by-row REST calls inside a loop for >10,000 records.',
-        'Loading entire multi-GB CSV/JSON files into heap memory instead of streaming.',
-        'Skipping external IDs / idempotency keys, causing duplicate ERP/CRM records on retry.'
+        'Calling a synchronous REST endpoint row-by-row inside a loop for >10,000 records.',
+        'Loading a 2 GB CSV or JSON file entirely into memory instead of streaming it.',
+        'Upserting without an External ID or idempotency key (creates duplicates on retry).'
       ];
       mapping = [
         ['Batch Runtime', 'Mule 4 Batch Job + ObjectStore Watermark', 'AWS Step Functions + Glue / Lambda', 'Apache Spark / Azure Data Factory'],
@@ -158,16 +188,16 @@
         ['State Store', 'Idempotency Key + Hash'],
         ['System B', 'System API Upsert (Ext ID)']
       ];
-      why = 'Eliminates polling overhead and infinite echo loops by tagging service-account writes (or payload hashes + correlation IDs) in a shared idempotency store before propagating updates to the opposite system.';
-      execPitch = 'Keeps CRM and ERP records synchronized in near real time while preventing catastrophic infinite-loop API storms and billing spikes.';
-      deliveryPlan = 'Estimated 3–4 sprints (1 Architect + 2 Devs + CRM/SAP Admins). Critical path: field-level System-of-Record ownership matrix, dedicated integration service users, and loop-storm UAT drill.';
+      why = 'When Salesforce updates SAP and SAP fires an event right back to Salesforce, you get an infinite ping-pong loop. Filter out your integration service user and check a SHA-256 hash of the payload in Redis or ObjectStore before writing back. Right?';
+      execPitch = 'Keeps Salesforce and SAP in sync within 2 seconds while preventing infinite update loops and surprise API overage bills.';
+      deliveryPlan = 'Plan for 3–4 sprints (1 Architect + 2 Devs + Salesforce/SAP Admins). Agree on which system owns each field on day 1 before writing any code.';
       antipatterns = [
-        'Syncing two systems without filtering integration-user updates (causes infinite echo loops).',
-        'Relying solely on timestamps without deterministic conflict resolution (System-of-Record rules).',
-        'Ignoring event retention windows when a downstream ERP goes down for maintenance.'
+        'Syncing two systems both ways without ignoring updates made by the integration user.',
+        'Relying only on system clocks/timestamps without clear field-ownership rules.',
+        'Forgetting event retention limits when SAP goes down for a 12-hour weekend upgrade.'
       ];
       mapping = [
-        ['Change Capture', 'Salesforce CDC / Platform Events (ReplayId)', 'Debezium CDC + Amazon MSK (Kafka)', 'SAP Event Mesh / OData Delta'],
+        ['Change Capture', 'Salesforce Pub/Sub API (gRPC) / CDC (ReplayId)', 'Debezium CDC + Amazon MSK (Kafka)', 'SAP Advanced Event Mesh / OData Delta'],
         ['Loop & State Guard', 'ObjectStore v2 / Redis Idempotent Validator', 'DynamoDB Conditional Put (TTL)', 'Redis / Postgres Upsert Hash'],
         ['Resilience', 'Anypoint MQ FIFO + DLQ Replay Flow', 'AWS SQS FIFO + EventBridge Replay', 'Kafka Consumer Offsets + DLT']
       ];
@@ -181,13 +211,13 @@
         ['Guardrail', 'Idempotency + Circuit Breaker'],
         ['Target + DLQ', 'System APIs + Replay Queue']
       ];
-      why = 'Absorbs traffic spikes via asynchronous buffering, returns fast 202 Accepted acknowledgments to callers, preserves strict partition ordering where required, and isolates downstream outages inside a replayable Dead-Letter Queue.';
-      execPitch = 'Guarantees zero lost orders even when downstream ERP/payment vendors experience outages or 10× peak traffic surges.';
-      deliveryPlan = 'Estimated 2–3 sprints (1 Architect + 2 Devs + DevOps). Critical path: queue/DLQ Terraform provisioning, consumer concurrency load testing, and ops replay runbook handover.';
+      why = 'Don\'t make a customer checkout page wait 6 seconds for a slow ERP. Accept the order onto a durable queue, return HTTP 202 in 80ms, and process it at a safe pace with a Dead-Letter Queue catching anything that fails.';
+      execPitch = 'Zero lost customer orders even when your backend ERP goes down for maintenance or traffic spikes 10× on sale day.';
+      deliveryPlan = 'Plan for 2–3 sprints (1 Architect + 2 Devs + DevOps). Provision queues and DLQ replay flows via Terraform and run a real poison-message drill before launch.';
       antipatterns = [
-        'Holding open synchronous HTTP threads while waiting on slow (>3s) downstream systems.',
-        'Using unbounded retries without exponential backoff or a Dead-Letter Queue (poison-pill loop).',
-        'Assuming brokers deliver exactly-once without an idempotent consumer check.'
+        'Holding synchronous HTTP connections open while waiting on slow (>3s) backend systems.',
+        'Retrying forever without exponential backoff or a Dead-Letter Queue.',
+        'Assuming a queue delivers a message only once without an idempotency check.'
       ];
       mapping = [
         ['Message Broker', 'Anypoint MQ (FIFO) / Confluent Kafka', 'Amazon SQS FIFO / EventBridge / MSK', 'Azure Service Bus / Kafka'],
@@ -204,27 +234,27 @@
         ['Process API', 'Parallel Scatter-Gather + Cache'],
         ['System APIs', 'Salesforce / SAP / Cloud DB']
       ];
-      why = 'Delivers sub-second responses by executing independent downstream calls in parallel, caching read-heavy reference data, and shielding legacy backends with timeouts, retries, and graceful fallback responses.';
-      execPitch = 'Cuts customer-facing response latency by 40–60% while keeping every downstream system reusable across web, mobile, and partner channels.';
-      deliveryPlan = 'Estimated 1–2 sprints (2 Integration Devs + 1 QA). Critical path: contract-first OpenAPI/RAML approval, OAuth2 client provisioning, and P95 load testing.';
+      why = 'When the user needs an answer on screen right now, call independent backends in parallel (Scatter-Gather), cache reference data at the edge, and set strict timeouts so one slow backend doesn\'t hang your whole app.';
+      execPitch = 'Cuts screen load times in half while keeping your core Salesforce and SAP APIs reusable across web, mobile, and partner apps.';
+      deliveryPlan = 'Plan for 1–2 sprints (2 Devs + 1 QA). Lock the OpenAPI/RAML contract first so frontend and backend teams can build in parallel without waiting.';
       antipatterns = [
-        'Chaining 4+ synchronous backend calls sequentially instead of fanning out in parallel.',
-        'Exposing raw ERP/CRM table schemas directly to mobile or partner apps (tight coupling).',
-        'Returning HTTP 200 OK on critical transactional failures (silent error swallowing).'
+        'Calling 4 backend APIs one after another when they could run in parallel.',
+        'Exposing raw SAP or database column names directly to a mobile app.',
+        'Returning HTTP 200 OK when a critical write actually failed underneath.'
       ];
       mapping = [
-        ['API Gateway', 'Anypoint API Manager / Flex Gateway', 'AWS API Gateway + WAF', 'Apigee / Kong Enterprise'],
+        ['API Gateway', 'MuleSoft Omni Gateway / API Manager', 'AWS API Gateway + WAF', 'Apigee / Kong Enterprise'],
         ['Orchestration', 'Mule 4 Scatter-Gather + ObjectStore Cache', 'AWS AppSync / Node/Java Aggregator', 'GraphQL Federation / Spring Boot'],
         ['Security', 'OAuth 2.0 JWT + mTLS + Client ID Enforcement', 'Cognito / Okta + IAM SigV4', 'Entra ID / OAuth 2.0 + mTLS']
       ];
     }
 
     if (priority === 'latency') {
-      why += ' Latency focus: enforce strict downstream timeouts (<1500ms), HTTP keep-alive connection pooling, and read-through caching.';
+      why += ' Keep downstream timeouts under 1.5s, enable HTTP connection pooling, and cache read-heavy lookups.';
     } else if (priority === 'audit') {
-      why += ' Audit focus: propagate X-Correlation-Id end to end, persist immutable audit payloads, and enforce mTLS + RBAC.';
+      why += ' Pass X-Correlation-Id across every hop, log immutable audit trails, and enforce mTLS + RBAC.';
     } else if (priority === 'cost') {
-      why += ' Cost focus: right-size fractional replicas/serverless concurrency, cache repetitive reads, and avoid unnecessary 24/7 idle clusters.';
+      why += ' Right-size your worker replicas, cache repetitive reads, and don\'t run oversized 24/7 clusters for a job that runs once a night.';
     }
 
     return { title: title, sla: sla, flow: flow, why: why, execPitch: execPitch, deliveryPlan: deliveryPlan, antipatterns: antipatterns, mapping: mapping };
@@ -256,16 +286,16 @@
       document.getElementById('adv-why-label').textContent = '2. Delivery Plan & Critical Path';
       document.getElementById('adv-why').textContent = rec.deliveryPlan;
       document.getElementById('adv-pitch-label').textContent = '4. Go-Live Readiness Gate';
-      document.getElementById('adv-pitch').textContent = 'Gate production cutover on: 85%+ automated unit/MUnit coverage, 2× peak load test pass, DLQ replay drill, and signed-off ops alert runbook.';
+      document.getElementById('adv-pitch').textContent = 'Don\'t go live until you have 85%+ unit/MUnit test coverage, a 2× peak load test pass, a working DLQ replay button, and an alert runbook.';
     } else if (advisorAudience === 'exec') {
       document.getElementById('adv-why-label').textContent = '2. Executive / CTO Business Value';
       document.getElementById('adv-why').textContent = rec.execPitch;
       document.getElementById('adv-pitch-label').textContent = '4. Delivery & Governance Next Step';
-      document.getElementById('adv-pitch').textContent = 'Approve a 2-week reference spike validating throughput, failover, and correlation telemetry before full program rollout.';
+      document.getElementById('adv-pitch').textContent = 'Run a 2-week proof-of-concept testing throughput, failover, and end-to-end correlation logs before committing the full budget.';
     } else {
-      document.getElementById('adv-why-label').textContent = '2. Architectural Rationale';
+      document.getElementById('adv-why-label').textContent = '2. Why This Works in Production';
       document.getElementById('adv-why').textContent = rec.why;
-      document.getElementById('adv-pitch-label').textContent = '4. 1-Line Executive Pitch';
+      document.getElementById('adv-pitch-label').textContent = '4. One-Line Summary for Your Team';
       document.getElementById('adv-pitch').textContent = rec.execPitch;
     }
 
@@ -288,13 +318,13 @@
       '## Delivery Plan',
       rec.deliveryPlan,
       '',
-      '## Executive Value',
+      '## Business Value',
       rec.execPitch,
       '',
       '## Flow',
       rec.flow.map(function (n) { return n[1]; }).join(' -> '),
       '',
-      '## Anti-Patterns Avoided',
+      '## Mistakes to Avoid',
       rec.antipatterns.map(function (a) { return '- ' + a; }).join('\n'),
       '',
       '## Platform Mapping',
@@ -315,7 +345,7 @@
   window.copyAdrMarkdown = function () {
     if (!lastAdrMarkdown) renderAdvisor();
     navigator.clipboard.writeText(lastAdrMarkdown).then(function () {
-      showToast('Copied Architecture Decision Record (Markdown)!');
+      showToast('Copied Markdown ADR to clipboard!');
     }).catch(function () {
       showToast('Copy failed — please copy manually.');
     });
@@ -325,121 +355,121 @@
   var BLUEPRINTS = {
     'sf-sap': {
       title: 'Bidirectional Salesforce ↔ SAP S/4HANA Sync',
-      summary: 'Near-real-time customer & order synchronization with deterministic loop prevention, ReplayId recovery, and zero duplicate postings.',
+      summary: 'How we keep CRM and ERP accounts in sync within 2 seconds without triggering an infinite update storm.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Salesforce to SAP Bidirectional Architecture">' +
-        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
-        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="99" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Salesforce CRM</text>' +
-        '<text x="99" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CDC / Platform Events</text>' +
-        '<line x1="174" y1="95" x2="238" y2="95" stroke="#f59e0b" stroke-width="2"/><polygon points="238,90 248,95 238,100" fill="#f59e0b"/>' +
-        '<line x1="248" y1="125" x2="184" y2="125" stroke="#10b981" stroke-width="2"/><polygon points="184,120 174,125 184,130" fill="#10b981"/>' +
-        '<rect x="248" y="48" width="180" height="124" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
-        '<text x="338" y="84" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Event Mesh / MQ</text>' +
-        '<text x="338" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">FIFO + ReplayId Store</text>' +
-        '<text x="338" y="132" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">DLQ Auto-Replay</text>' +
-        '<line x1="428" y1="110" x2="492" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="492,105 502,110 492,115" fill="#f59e0b"/>' +
-        '<rect x="502" y="48" width="188" height="124" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
-        '<text x="596" y="84" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Process &amp; Loop Guard</text>' +
-        '<text x="596" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Filter Integration User</text>' +
-        '<text x="596" y="132" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">SHA-256 Payload Hash</text>' +
-        '<line x1="690" y1="110" x2="744" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#10b981"/>' +
-        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
-        '<text x="825" y="102" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP S/4HANA</text>' +
-        '<text x="825" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 / IDoc</text>' +
+        '<rect width="920" height="230" rx="12" fill="#0D0D0D"/>' +
+        '<rect x="24" y="62" width="150" height="96" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="99" y="102" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Salesforce CRM</text>' +
+        '<text x="99" y="124" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">CDC / Platform Events</text>' +
+        '<line x1="174" y1="95" x2="238" y2="95" stroke="#22c55e" stroke-width="2"/><polygon points="238,90 248,95 238,100" fill="#22c55e"/>' +
+        '<line x1="248" y1="125" x2="184" y2="125" stroke="#A1A1AA" stroke-width="2"/><polygon points="184,120 174,125 184,130" fill="#A1A1AA"/>' +
+        '<rect x="248" y="48" width="180" height="124" rx="12" fill="#161616" stroke="#A1A1AA" stroke-width="1.5"/>' +
+        '<text x="338" y="84" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Event Mesh / MQ</text>' +
+        '<text x="338" y="108" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">FIFO + ReplayId Store</text>' +
+        '<text x="338" y="132" fill="#22c55e" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">DLQ Auto-Replay</text>' +
+        '<line x1="428" y1="110" x2="492" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="492,105 502,110 492,115" fill="#22c55e"/>' +
+        '<rect x="502" y="48" width="188" height="124" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="596" y="84" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Process &amp; Loop Guard</text>' +
+        '<text x="596" y="108" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Filter Integration User</text>' +
+        '<text x="596" y="132" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">SHA-256 Payload Hash</text>' +
+        '<line x1="690" y1="110" x2="744" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#22c55e"/>' +
+        '<rect x="754" y="62" width="142" height="96" rx="12" fill="#161616" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="825" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">SAP S/4HANA</text>' +
+        '<text x="825" y="124" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 / IDoc</text>' +
         '</svg>',
       cards: [
-        ['Loop Prevention', 'Tag every integration write with a dedicated service user + correlation header and compare payload SHA-256 hashes before emitting updates back.'],
-        ['Failure Resilience', 'Persist Salesforce ReplayId in ObjectStore/Redis; route SAP maintenance outages to an Anypoint MQ / SQS DLQ for ordered replay.'],
-        ['KPI Outcome', 'Eliminated 100% of duplicate billing postings and cut sync lag from 15-minute batch polling down to < 2 seconds.']
+        ['How We Stop Infinite Loops', 'We use a dedicated integration service user and store a SHA-256 hash of every synced payload. If the hash hasn\'t changed, we drop the echo event right there.'],
+        ['What Happens When SAP Is Down', 'We save the Salesforce ReplayId in ObjectStore/Redis and route failed writes into an Anypoint MQ / SQS Dead-Letter Queue so everything replays in order once SAP is back.'],
+        ['Real Result', 'Zero duplicate invoices and sync time dropped from a 15-minute batch job down to under 2 seconds.']
       ]
     },
     'cloud-mig': {
       title: 'Zero-Downtime Legacy-to-Cloud-Native Migration',
-      summary: 'Strangler-Fig API Gateway migration from legacy EC2/on-prem runtimes to Kubernetes/CloudHub 2.0 Private Spaces with instant canary rollback.',
+      summary: 'Move from old EC2/on-prem servers to CloudHub 2.0 or Kubernetes Private Spaces without breaking a single client app.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zero Downtime Cloud Migration Blueprint">' +
-        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
-        '<rect x="24" y="68" width="150" height="84" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="99" y="104" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">API Consumers</text>' +
-        '<text x="99" y="126" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Zero Client Change</text>' +
-        '<line x1="174" y1="110" x2="238" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="238,105 248,110 238,115" fill="#f59e0b"/>' +
-        '<rect x="248" y="54" width="190" height="112" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
-        '<text x="343" y="92" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Edge Gateway / DNS</text>' +
-        '<text x="343" y="114" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Weighted Canary</text>' +
-        '<text x="343" y="136" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">10% → 50% → 100%</text>' +
-        '<line x1="438" y1="86" x2="530" y2="62" stroke="#10b981" stroke-width="2"/>' +
+        '<rect width="920" height="230" rx="12" fill="#0D0D0D"/>' +
+        '<rect x="24" y="68" width="150" height="84" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="99" y="104" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">API Consumers</text>' +
+        '<text x="99" y="126" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Zero Client Change</text>' +
+        '<line x1="174" y1="110" x2="238" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="238,105 248,110 238,115" fill="#22c55e"/>' +
+        '<rect x="248" y="54" width="190" height="112" rx="12" fill="#161616" stroke="#A1A1AA" stroke-width="1.5"/>' +
+        '<text x="343" y="92" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Edge Gateway / DNS</text>' +
+        '<text x="343" y="114" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Weighted Canary</text>' +
+        '<text x="343" y="136" fill="#22c55e" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">10% → 50% → 100%</text>' +
+        '<line x1="438" y1="86" x2="530" y2="62" stroke="#22c55e" stroke-width="2"/>' +
         '<line x1="438" y1="134" x2="530" y2="158" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,4"/>' +
-        '<rect x="530" y="24" width="360" height="74" rx="10" fill="#0f231e" stroke="#10b981" stroke-width="2"/>' +
-        '<text x="710" y="54" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Target: CloudHub 2.0 / Kubernetes Private Space</text>' +
-        '<text x="710" y="76" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">2+ Replicas · Transit Gateway · OTel Telemetry</text>' +
-        '<rect x="530" y="128" width="360" height="74" rx="10" fill="#231a10" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="710" y="158" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Legacy: CloudHub 1.0 / On-Prem Runtime</text>' +
-        '<text x="710" y="180" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Warm Standby for Instant 30s Rollback</text>' +
+        '<rect x="530" y="24" width="360" height="74" rx="12" fill="#111f16" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="710" y="54" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">New: CloudHub 2.0 / Kubernetes Private Space</text>' +
+        '<text x="710" y="76" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">2+ Replicas · Transit Gateway · OTel Telemetry</text>' +
+        '<rect x="530" y="128" width="360" height="74" rx="12" fill="#1f1912" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="710" y="158" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Old: CloudHub 1.0 / On-Prem Runtime</text>' +
+        '<text x="710" y="180" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Kept Warm 48h for 30-Second Rollback</text>' +
         '</svg>',
       cards: [
-        ['Network Parity First', 'Provision Private Space / VPC Peering, Transit Gateway, and egress static IPs before migrating the first API workload.'],
-        ['Canary Cutover', 'Shift traffic 10% → 50% → 100% via DNS/Gateway weights while comparing P95 latency, 5xx rates, and payload parity.'],
-        ['Zero-Downtime Guardrail', 'Keep legacy workers warm for 48 hours post-cutover so any downstream edge case rolls back in under 30 seconds.']
+        ['Fix Networking First', 'Set up your Private Space, Transit Gateway, firewall rules, and static IPs before moving a single API. 90% of migration delays are firewall tickets.'],
+        ['Shift Traffic Slowly', 'Send 10% of live traffic first, check P95 latency and error logs, then ramp to 50% and 100%.'],
+        ['30-Second Escape Hatch', 'Leave the old workers running on standby for 48 hours after cutover so you can flip DNS back in 30 seconds if anything weird happens.']
       ]
     },
     'ai-mcp': {
       title: 'Enterprise AI & Autonomous Agent Integration (MCP + Model Proxy)',
-      summary: 'Connect Salesforce Agentforce and LLM copilots safely to enterprise APIs using Model Context Protocol (MCP), PII masking, and semantic caching.',
+      summary: 'Let AI agents act on real company data through MCP tools without leaking PII or giving them god-mode database access.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Enterprise AI MCP Governance Blueprint">' +
-        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
-        '<rect x="24" y="62" width="150" height="96" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="99" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Agents</text>' +
-        '<text x="99" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Agentforce / Copilots</text>' +
-        '<line x1="174" y1="110" x2="234" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="234,105 244,110 234,115" fill="#f59e0b"/>' +
-        '<rect x="244" y="48" width="194" height="124" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
-        '<text x="341" y="84" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">AI Gateway &amp; Proxy</text>' +
-        '<text x="341" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">PII Redaction + Quotas</text>' +
-        '<text x="341" y="132" fill="#34d399" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Semantic Cache + Fallback</text>' +
-        '<line x1="438" y1="110" x2="498" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="498,105 508,110 498,115" fill="#f59e0b"/>' +
-        '<rect x="508" y="48" width="184" height="124" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
-        '<text x="600" y="84" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">MCP Tool Layer</text>' +
-        '<text x="600" y="108" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Scoped RBAC Actions</text>' +
-        '<text x="600" y="132" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Schema Validation</text>' +
-        '<line x1="692" y1="110" x2="744" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#10b981"/>' +
-        '<rect x="754" y="62" width="142" height="96" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
-        '<text x="825" y="102" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">System APIs</text>' +
-        '<text x="825" y="124" fill="#a1a1aa" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">ERP · CRM · Billing</text>' +
+        '<rect width="920" height="230" rx="12" fill="#0D0D0D"/>' +
+        '<rect x="24" y="62" width="150" height="96" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="99" y="102" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">AI Agents</text>' +
+        '<text x="99" y="124" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Agentforce / Copilots</text>' +
+        '<line x1="174" y1="110" x2="234" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="234,105 244,110 234,115" fill="#22c55e"/>' +
+        '<rect x="244" y="48" width="194" height="124" rx="12" fill="#161616" stroke="#A1A1AA" stroke-width="1.5"/>' +
+        '<text x="341" y="84" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">AI Gateway &amp; Proxy</text>' +
+        '<text x="341" y="108" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">PII Redaction + Quotas</text>' +
+        '<text x="341" y="132" fill="#22c55e" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Semantic Cache + Fallback</text>' +
+        '<line x1="438" y1="110" x2="498" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="498,105 508,110 498,115" fill="#22c55e"/>' +
+        '<rect x="508" y="48" width="184" height="124" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="600" y="84" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">MCP Tool Layer</text>' +
+        '<text x="600" y="108" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Scoped RBAC Actions</text>' +
+        '<text x="600" y="132" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">Schema Validation</text>' +
+        '<line x1="692" y1="110" x2="744" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#22c55e"/>' +
+        '<rect x="754" y="62" width="142" height="96" rx="12" fill="#161616" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="825" y="102" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">System APIs</text>' +
+        '<text x="825" y="124" fill="#A1A1AA" font-size="11" text-anchor="middle" font-family="JetBrains Mono,monospace">ERP · CRM · Billing</text>' +
         '</svg>',
       cards: [
-        ['Zero Direct DB Access', 'AI agents invoke strictly typed MCP tools backed by existing System APIs — inheriting OAuth2, audit logging, and rate limits.'],
-        ['Cost & Latency Control', 'Semantic caching serves repeated policy/status prompts in <50ms while automatic fallback shifts traffic if a primary LLM throttles.'],
-        ['Compliance & PII', 'Gateway strips SSN, card numbers, and secrets before prompts leave the enterprise boundary.']
+        ['No Direct DB Access', 'Agents only call strict MCP tools backed by your existing System APIs, so all your OAuth2 rules and audit logs still apply.'],
+        ['Cut Your LLM Bill', 'Semantic caching answers repeated questions in under 50ms and automatically fails over if OpenAI or Claude slows down.'],
+        ['Mask PII at the Door', 'The gateway strips SSNs, phone numbers, and card digits before a prompt ever leaves your company network.']
       ]
     },
     'cross-2026': {
       title: '2026 Cross-Platform Agentic Mesh (Salesforce gRPC + MuleSoft/Workato MCP + SAP Clean Core)',
-      summary: 'Unifies Salesforce Pub/Sub API (gRPC + Avro pull flow control), Verified User Access (VUA) / Agent Fabric MCP governance, and SAP S/4HANA Clean Core OData v4 without custom ERP code.',
+      summary: 'Combines Salesforce Pub/Sub gRPC pull streaming, Verified User Access (VUA) / Agent Fabric MCP governance, and SAP S/4HANA Clean Core OData v4.',
       svg: '<svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="2026 Cross-Platform Agentic Mesh Blueprint">' +
-        '<rect width="920" height="230" rx="12" fill="#0c0c0f"/>' +
-        '<rect x="20" y="54" width="170" height="112" rx="10" fill="#18181b" stroke="#f59e0b" stroke-width="2"/>' +
-        '<text x="105" y="88" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Salesforce</text>' +
-        '<text x="105" y="112" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Pub/Sub API (gRPC)</text>' +
-        '<text x="105" y="134" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Data Cloud Zero-Copy</text>' +
-        '<line x1="190" y1="110" x2="242" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="242,105 252,110 242,115" fill="#f59e0b"/>' +
-        '<rect x="252" y="42" width="210" height="136" rx="10" fill="#18181b" stroke="#10b981" stroke-width="2"/>' +
-        '<text x="357" y="76" fill="#34d399" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">Omni / Edge MCP Plane</text>' +
-        '<text x="357" y="100" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">MuleSoft Agent Fabric (A2A)</text>' +
-        '<text x="357" y="122" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Workato MCP + VUA (OAuth)</text>' +
+        '<rect width="920" height="230" rx="12" fill="#0D0D0D"/>' +
+        '<rect x="20" y="54" width="170" height="112" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="105" y="88" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Salesforce</text>' +
+        '<text x="105" y="112" fill="#A1A1AA" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Pub/Sub API (gRPC)</text>' +
+        '<text x="105" y="134" fill="#22c55e" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Data Cloud Zero-Copy</text>' +
+        '<line x1="190" y1="110" x2="242" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="242,105 252,110 242,115" fill="#22c55e"/>' +
+        '<rect x="252" y="42" width="210" height="136" rx="12" fill="#161616" stroke="#22c55e" stroke-width="2"/>' +
+        '<text x="357" y="76" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">Omni / Edge MCP Plane</text>' +
+        '<text x="357" y="100" fill="#A1A1AA" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">MuleSoft Agent Fabric (A2A)</text>' +
+        '<text x="357" y="122" fill="#A1A1AA" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Workato MCP + VUA (OAuth)</text>' +
         '<text x="357" y="146" fill="#fbbf24" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Human-in-Loop Approvals</text>' +
-        '<line x1="462" y1="110" x2="514" y2="110" stroke="#10b981" stroke-width="2"/><polygon points="514,105 524,110 514,115" fill="#10b981"/>' +
-        '<rect x="524" y="54" width="176" height="112" rx="10" fill="#18181b" stroke="#a1a1aa" stroke-width="1.5"/>' +
-        '<text x="612" y="88" fill="#fafafa" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP Integration Suite</text>' +
-        '<text x="612" y="112" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Advanced Event Mesh</text>' +
-        '<text x="612" y="134" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">SAP Graph + API Mgmt</text>' +
-        '<line x1="700" y1="110" x2="744" y2="110" stroke="#f97316" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#f97316"/>' +
-        '<rect x="754" y="54" width="146" height="112" rx="10" fill="#18181b" stroke="#f97316" stroke-width="2"/>' +
-        '<text x="827" y="92" fill="#fb923c" font-size="13" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">SAP S/4HANA</text>' +
-        '<text x="827" y="116" fill="#a1a1aa" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Clean Core (BTP)</text>' +
-        '<text x="827" y="138" fill="#34d399" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 Batch</text>' +
+        '<line x1="462" y1="110" x2="514" y2="110" stroke="#22c55e" stroke-width="2"/><polygon points="514,105 524,110 514,115" fill="#22c55e"/>' +
+        '<rect x="524" y="54" width="176" height="112" rx="12" fill="#161616" stroke="#A1A1AA" stroke-width="1.5"/>' +
+        '<text x="612" y="88" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">SAP Integration Suite</text>' +
+        '<text x="612" y="112" fill="#A1A1AA" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Advanced Event Mesh</text>' +
+        '<text x="612" y="134" fill="#22c55e" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">SAP Graph + API Mgmt</text>' +
+        '<line x1="700" y1="110" x2="744" y2="110" stroke="#f59e0b" stroke-width="2"/><polygon points="744,105 754,110 744,115" fill="#f59e0b"/>' +
+        '<rect x="754" y="54" width="146" height="112" rx="12" fill="#161616" stroke="#f59e0b" stroke-width="2"/>' +
+        '<text x="827" y="92" fill="#fbbf24" font-size="13" font-weight="700" text-anchor="middle" font-family="Inter,sans-serif">SAP S/4HANA</text>' +
+        '<text x="827" y="116" fill="#A1A1AA" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">Clean Core (BTP)</text>' +
+        '<text x="827" y="138" fill="#22c55e" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono,monospace">OData v4 Batch</text>' +
         '</svg>',
       cards: [
-        ['Verified User Access (VUA)', 'AI agents call MCP tools using the end user\'s own OAuth 2.0 identity instead of a shared super-admin token, enforcing native CRM/ERP RBAC.'],
-        ['gRPC Pull Flow Control', 'Salesforce Pub/Sub API replaces legacy CometD push streams with HTTP/2 + binary Avro pull batches so consumers never get overwhelmed.'],
-        ['SAP Clean Core Compliance', 'All custom orchestration stays side-by-side in SAP BTP / MuleSoft / Workato via OData v4 & AEM, keeping S/4HANA upgrades 100% safe.']
+        ['Verified User Access (VUA)', 'AI agents call MCP tools using the end user\'s own OAuth 2.0 login instead of a shared super-admin token, so CRM/ERP permissions actually work.'],
+        ['gRPC Pull Flow Control', 'Salesforce Pub/Sub API replaces old CometD push streams with HTTP/2 + binary Avro pull batches so your consumer never gets flooded.'],
+        ['SAP Clean Core Rule', 'All custom orchestration stays outside S/4HANA on SAP BTP, MuleSoft, or Workato via OData v4 and AEM so ERP upgrades don\'t break.']
       ]
     }
   };
@@ -466,17 +496,17 @@
 
     var mult = comp === 'erp' ? 1.7 : (comp === 'std' ? 1.2 : 0.85);
     var secDays = sec === 'pci' ? 8 : (sec === 'mtls' ? 4 : 1);
-    var apiCount = systems + Math.max(1, Math.ceil(systems / 2)) + 1; // SAPIs + PAPIs + XAPI
+    var apiCount = systems + Math.max(1, Math.ceil(systems / 2)) + 1;
     var devDays = Math.round((apiCount * 5.5 * mult) + secDays);
     var qaDays = Math.round(devDays * 0.35);
     var totalDays = devDays + qaDays;
     var sprints = Math.max(1, Math.ceil(totalDays / (devs * 8.5)));
-    var risk = (comp === 'erp' || sec === 'pci' || systems >= 5) ? 'HIGH — Run 1-Sprint Architecture Spike First' : (systems >= 3 ? 'MEDIUM — Lock Contracts Early' : 'LOW — Standard Agile Track');
+    var risk = (comp === 'erp' || sec === 'pci' || systems >= 5) ? 'HIGH — Run a 1-Sprint Proof-of-Concept First' : (systems >= 3 ? 'MEDIUM — Lock API Contracts in Week 1' : 'LOW — Standard Agile Track');
 
     document.getElementById('del-kpis').innerHTML =
       '<div class="result-box"><h3>Estimated Timeline</h3><div class="kpi-val">' + sprints + ' Sprint' + (sprints > 1 ? 's' : '') + '</div><p>' + (sprints * 2) + ' weeks (' + totalDays + ' person-days incl. QA/NFR)</p></div>' +
       '<div class="result-box"><h3>Recommended APIs</h3><div class="kpi-val">' + apiCount + ' APIs</div><p>1 XAPI · ' + Math.max(1, Math.ceil(systems / 2)) + ' PAPI · ' + systems + ' SAPI</p></div>' +
-      '<div class="result-box"><h3>Test &amp; NFR Buffer</h3><div class="kpi-val">' + qaDays + ' Days</div><p>Unit/MUnit (85%+), Perf Load &amp; Failover</p></div>' +
+      '<div class="result-box"><h3>Test &amp; NFR Buffer</h3><div class="kpi-val">' + qaDays + ' Days</div><p>Unit/MUnit (85%+), Load Test &amp; Failover</p></div>' +
       '<div class="result-box"><h3>Delivery Risk</h3><div class="big-val" style="font-size:0.96rem;">' + risk + '</div><p>Team: ' + devs + ' Eng + Shared Architect</p></div>';
 
     lastDeliveryMd = [
@@ -501,14 +531,14 @@
 
   /* ===== 4. Production Readiness & Resilience Scorecard ===== */
   var CHECKS = [
-    { id: 'c1', title: 'Idempotency Keys on Writes', sub: 'Prevents duplicate orders/payments on retries', risk: 'Duplicate financial/ERP records during network retries' },
-    { id: 'c2', title: 'Dead-Letter Queue + Replay', sub: 'Failed async messages never silently drop', risk: 'Permanent data loss when downstream systems go offline' },
-    { id: 'c3', title: 'End-to-End Correlation ID', sub: 'Trace single request across XAPI → PAPI → SAPI', risk: 'Slow Sev-1 incident debugging across distributed teams' },
-    { id: 'c4', title: 'Explicit Timeouts & Circuit Breaker', sub: 'No infinite hangs when a vendor stalls', risk: 'Thread-pool exhaustion cascading across all APIs' },
-    { id: 'c5', title: 'Zero Secrets in Code or Logs', sub: 'Vault/Secrets Manager + PII log redaction', risk: 'Credential leak or compliance/audit failure' },
-    { id: 'c6', title: 'High Availability (2+ Replicas)', sub: 'Zero-downtime rolling updates & AZ failover', risk: 'Single-node outage takes down production traffic' },
-    { id: 'c7', title: 'Contract-First OpenAPI / RAML', sub: 'Schema validation & semantic versioning enforced', risk: 'Breaking downstream consumers on silent payload drift' },
-    { id: 'c8', title: 'OpenTelemetry Traces & Alerts', sub: 'Proactive P95 latency & 5xx alerting', risk: 'Customers report outages before your ops team knows' }
+    { id: 'c1', title: 'Idempotency Keys on Writes', sub: 'So a retry never charges a customer twice', risk: 'Duplicate orders or payments when a network call retries' },
+    { id: 'c2', title: 'Dead-Letter Queue + Replay', sub: 'Failed async messages never vanish into thin air', risk: 'Permanent data loss when a downstream ERP goes offline' },
+    { id: 'c3', title: 'End-to-End Correlation ID', sub: 'Follow one request across XAPI → PAPI → SAPI', risk: 'Hours wasted grepping logs during a 2 AM production outage' },
+    { id: 'c4', title: 'Explicit Timeouts & Circuit Breaker', sub: 'Don\'t let one hung vendor freeze all your threads', risk: 'Thread-pool exhaustion taking down unrelated APIs' },
+    { id: 'c5', title: 'Zero Secrets in Code or Logs', sub: 'Vault/Secrets Manager + PII masked in logs', risk: 'Leaked credentials or compliance audit failure' },
+    { id: 'c6', title: 'High Availability (2+ Replicas)', sub: 'Zero-downtime deploys and multi-AZ failover', risk: 'Single worker restart drops live customer traffic' },
+    { id: 'c7', title: 'Contract-First OpenAPI / RAML', sub: 'Schema validation & versioning before coding', risk: 'Silent payload changes breaking mobile or partner apps' },
+    { id: 'c8', title: 'OpenTelemetry Traces & Alerts', sub: 'Know about 5xx spikes before your customer does', risk: 'Customers report outages before your ops team notices' }
   ];
 
   function renderScorecard() {
@@ -541,20 +571,20 @@
     var gradeEl = document.getElementById('score-grade');
     var riskEl = document.getElementById('score-risk');
     if (pct >= 88) {
-      gradeEl.innerHTML = '<span class="status-chip status-ok">🏆 Enterprise Production-Ready</span>';
-      riskEl.textContent = missing.length ? 'Remaining polish: ' + missing[0].title + '.' : 'All 8 enterprise resilience pillars verified — ready for high-SLA production!';
+      gradeEl.innerHTML = '<span class="status-chip status-ok">🏆 Production-Ready Architecture</span>';
+      riskEl.textContent = missing.length ? 'Almost there — just add: ' + missing[0].title + '.' : 'All 8 resilience checks passed. Ship it with confidence!';
     } else if (pct >= 50) {
-      gradeEl.innerHTML = '<span class="status-chip status-warn">⚠️ Needs Pre-Prod Hardening</span>';
-      riskEl.textContent = 'Top gap to close first: ' + missing[0].risk + '.';
+      gradeEl.innerHTML = '<span class="status-chip status-warn">⚠️ Needs Hardening Before Go-Live</span>';
+      riskEl.textContent = 'Biggest risk right now: ' + missing[0].risk + '.';
     } else {
       gradeEl.innerHTML = '<span class="status-chip status-err">🚨 High Outage Risk</span>';
-      riskEl.textContent = 'Critical exposure: ' + missing[0].risk + '.';
+      riskEl.textContent = 'Fix this first: ' + missing[0].risk + '.';
     }
   };
 
   window.copyScorecardShare = function () {
     var score = document.getElementById('score-num').textContent;
-    var txt = 'I just ran the 60-Second Enterprise Integration Readiness Audit and scored ' + score + '!\n\nTest your API & Event-Driven architecture resilience (free & offline): https://niranjanpotter.dpdns.org/#readiness-audit';
+    var txt = 'I just ran the 60-Second Integration Readiness Check on Niranjan\'s workbench and scored ' + score + '.\n\nCheck your API before go-live (100% free & client-side): https://niranjanpotter.dpdns.org/#readiness-audit';
     navigator.clipboard.writeText(txt).then(function () {
       showToast('Copied LinkedIn Scorecard text!');
     }).catch(function () {
@@ -582,13 +612,13 @@
     var out = document.getElementById('jwt-output');
     var status = document.getElementById('jwt-status');
     if (!raw) {
-      out.textContent = 'Paste a JWT token to inspect Header, Payload, Expiry, and Security Flags (100% local in your browser).';
+      out.textContent = 'Paste your JWT token on the left. You\'ll see the header, payload, expiry time, and any security red flags right here — 100% inside your browser.';
       status.innerHTML = '';
       return;
     }
     var parts = raw.split('.');
     if (parts.length < 2) {
-      out.textContent = 'Invalid JWT format — expected 3 dot-separated segments (header.payload.signature).';
+      out.textContent = 'That doesn\'t look like a valid JWT — it needs 3 dot-separated parts (header.payload.signature).';
       status.innerHTML = '<span class="status-chip status-err">Invalid JWT</span>';
       return;
     }
@@ -597,13 +627,13 @@
       var payload = JSON.parse(b64UrlDecode(parts[1]));
       var flags = [];
       var now = Math.floor(Date.now() / 1000);
-      if (!header.alg || String(header.alg).toLowerCase() === 'none') flags.push('CRITICAL: alg is "none" (unsigned token).');
+      if (!header.alg || String(header.alg).toLowerCase() === 'none') flags.push('CRITICAL: alg is "none" (anyone can forge an unsigned token!).');
       if (payload.exp) {
         if (payload.exp < now) flags.push('EXPIRED at ' + new Date(payload.exp * 1000).toISOString());
         else flags.push('VALID until ' + new Date(payload.exp * 1000).toISOString());
-        if (payload.iat && (payload.exp - payload.iat) > 86400) flags.push('WARNING: Token TTL > 24 hours (' + Math.round((payload.exp - payload.iat) / 3600) + 'h).');
+        if (payload.iat && (payload.exp - payload.iat) > 86400) flags.push('WARNING: Token lives longer than 24 hours (' + Math.round((payload.exp - payload.iat) / 3600) + 'h). Keep access tokens short-lived.');
       } else {
-        flags.push('WARNING: Missing "exp" claim.');
+        flags.push('WARNING: No "exp" claim — this token never expires!');
       }
       if (!payload.iss) flags.push('NOTE: Missing "iss" (issuer) claim.');
       if (!payload.aud) flags.push('NOTE: Missing "aud" (audience) claim.');
@@ -611,14 +641,14 @@
       var isBad = flags.some(function (f) { return f.startsWith('CRITICAL') || f.startsWith('EXPIRED'); });
       var isWarn = flags.some(function (f) { return f.startsWith('WARNING'); });
       status.innerHTML = '<span class="status-chip ' + (isBad ? 'status-err' : (isWarn ? 'status-warn' : 'status-ok')) + '">' +
-        (isBad ? 'Security / Expiry Alert' : (isWarn ? 'Valid with Warnings' : 'Valid Token Structure')) + '</span>';
+        (isBad ? 'Expired / Security Issue' : (isWarn ? 'Valid Token Structure (With Warnings)' : 'Valid Token Structure')) + '</span>';
 
       out.textContent =
-        '=== SECURITY CHECKS ===\n' + flags.map(function (f) { return '• ' + f; }).join('\n') +
+        '=== QUICK CHECK ===\n' + flags.map(function (f) { return '• ' + f; }).join('\n') +
         '\n\n=== HEADER ===\n' + JSON.stringify(header, null, 2) +
         '\n\n=== PAYLOAD ===\n' + JSON.stringify(payload, null, 2);
     } catch (e) {
-      out.textContent = 'Could not decode Base64URL JSON: ' + e.message;
+      out.textContent = 'Couldn\'t decode Base64URL JSON: ' + e.message;
       status.innerHTML = '<span class="status-chip status-err">Decode Error</span>';
     }
   };
@@ -648,7 +678,7 @@
     var out = document.getElementById('cron-output');
     var parts = raw.split(/\s+/).filter(Boolean);
     if (parts.length !== 5 && parts.length !== 6) {
-      out.textContent = 'Enter a valid 5-field (Unix/AWS) or 6-field (Quartz / Mule 4 / Spring) cron expression.';
+      out.textContent = 'Type a 5-field (Linux/AWS) or 6-field (Quartz / Mule 4 / Spring) cron expression.';
       return;
     }
     var isQuartz = parts.length === 6;
@@ -669,16 +699,16 @@
       ', ' + desc(mon, 'month') + ', ' + desc(dow, 'day-of-week') + '.';
 
     out.textContent =
-      'Format: ' + (isQuartz ? '6-field Quartz (Mule 4 / Spring / Java)' : '5-field Standard Unix / GitHub Actions / K8s') + '\n' +
-      'Summary: ' + summary + '\n\n' +
-      'Breakdown:\n' +
+      'Format: ' + (isQuartz ? '6-field Quartz (Mule 4 / Spring / Java)' : '5-field Standard Linux / GitHub Actions / K8s') + '\n' +
+      'Plain English: ' + summary + '\n\n' +
+      'Field Breakdown:\n' +
       (isQuartz ? '  Seconds      : ' + sec + '\n' : '') +
       '  Minutes      : ' + min + '\n' +
       '  Hours        : ' + hr + '\n' +
       '  Day of Month : ' + dom + '\n' +
       '  Month        : ' + mon + '\n' +
       '  Day of Week  : ' + dow + '\n\n' +
-      'Mule 4 Scheduler XML:\n' +
+      'Copy-Ready Mule 4 Scheduler XML:\n' +
       '<scheduling-strategy>\n  <cron expression="' + (isQuartz ? raw : '0 ' + raw) + '" timeZone="UTC"/>\n</scheduling-strategy>';
   };
 
@@ -713,14 +743,14 @@
         ? '#%RAML 1.0 DataType\n' + inferSchema(obj, 0, true)
         : 'openapi: 3.0.3\ncomponents:\n  schemas:\n    PayloadModel:\n' + inferSchema(obj, 6, false);
     } catch (e) {
-      out.textContent = 'Invalid JSON input: ' + e.message;
+      out.textContent = 'That JSON has a syntax error: ' + e.message;
     }
   };
 
   window.copySpecOutput = function () {
     var txt = document.getElementById('spec-output').textContent || '';
     navigator.clipboard.writeText(txt).then(function () {
-      showToast('Copied generated API schema!');
+      showToast('Copied API schema!');
     }).catch(function () {
       showToast('Copy failed.');
     });
@@ -729,43 +759,43 @@
   /* ===== 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) ===== */
   var RADAR_DATA = {
     agentic: {
-      heading: 'Agentic AI, MCP Governance & Identity Security',
-      insight: 'Rare Architect Insight: Never run AI/MCP tools under a shared "god-mode" service token. Use Workato Verified User Access (VUA) or MuleSoft Agent Fabric scoped OAuth so every AI tool call inherits the exact caller\'s RBAC permissions.',
+      heading: 'Agentic AI, MCP Governance & Who Actually Runs the Tool',
+      insight: 'I learned this the hard way: never let an AI agent call an ERP using a shared "god-mode" token. Use Workato Verified User Access (VUA) or MuleSoft Agent Fabric scoped OAuth so the AI only sees what that specific logged-in user is allowed to see.',
       rows: [
-        ['MuleSoft (docs.mulesoft.com)', 'Agent Fabric + Agent Brokers (agent-network.yaml) + A2A (Agent-to-Agent) + MCP Bridges (OAS 3.1/3.2 -> MCP tools)', 'Best when governing heterogeneous APIs + multi-agent networks across hybrid clouds'],
-        ['Workato (docs.workato.com)', 'Workato ONE Agent Studio ("Genies") + Enterprise MCP + Verified User Access (VUA) + Slack/Teams Human-in-the-Loop', 'Best for fast business-workflow orchestration with end-user credential delegation'],
-        ['Salesforce (developer.salesforce.com)', 'Agentforce Topics & Actions + External Services (OpenAPI -> declarative Agent Actions) + Data Cloud RAG grounding', 'Best for CRM-native autonomous service & sales agents grounded in unified profiles'],
-        ['SAP (store.sap.com / BTP)', 'SAP BTP AI Core + Side-by-Side Clean Core extensions exposing governed OData v4 / SAP Graph actions', 'Best for ERP-centric enterprise workflows without modifying S/4HANA core ABAP']
+        ['MuleSoft (docs.mulesoft.com)', 'Agent Fabric + Agent Brokers (agent-network.yaml) + A2A (Agent-to-Agent) + MCP Bridges (OAS 3.1/3.2 -> MCP tools)', 'Best when you need deep control across hybrid clouds and multi-agent networks'],
+        ['Workato (docs.workato.com)', 'Workato ONE Agent Studio ("Genies") + Enterprise MCP + Verified User Access (VUA) + Slack/Teams Human-in-the-Loop', 'Best when your business team wants fast workflows that still respect user OAuth permissions'],
+        ['Salesforce (developer.salesforce.com)', 'Agentforce Topics & Actions + External Services (OpenAPI -> Agent Actions) + Data Cloud grounding', 'Best if your sales & service teams already live inside Salesforce all day'],
+        ['SAP (store.sap.com / BTP)', 'SAP BTP AI Core + Side-by-Side Clean Core extensions exposing governed OData v4 / SAP Graph actions', 'Best for SAP-heavy shops that can\'t touch core S/4HANA ABAP']
       ]
     },
     streaming: {
-      heading: 'Next-Gen Event Streaming & Backpressure Control',
-      insight: 'Rare Architect Insight: Legacy push streaming (CometD) can crash slow consumers during traffic bursts. Salesforce Pub/Sub API (gRPC + HTTP/2 + Binary Avro) introduces client-controlled Pull Flow Control so consumers request exact batch sizes.',
+      heading: 'Event Streaming Without Flooding Your Subscribers',
+      insight: 'Old CometD push streams will happily dump 50,000 events onto a slow subscriber until it crashes. Salesforce\'s new Pub/Sub API uses gRPC + HTTP/2 + binary Avro so YOUR consumer pulls batches only when it\'s ready. Makes sense?',
       rows: [
-        ['MuleSoft', 'Anypoint MQ (FIFO + DLQ) + Kafka Connector + ReplayId persistence in ObjectStore v2', 'Strong hybrid enterprise messaging with native DLQ replay flows'],
-        ['Workato', 'Event Streams + Recipe Triggers + AWS SNS / Azure Event Hub / Kafka connectors', 'Rapid event-to-workflow orchestration with built-in job history & retries'],
-        ['Salesforce', 'Pub/Sub API (gRPC + HTTP/2 + Apache Avro) with Pull Flow Control replacing legacy CometD', 'High-throughput bidirectional streaming directly into Data Cloud & external apps'],
-        ['SAP Integration Suite', 'SAP Event Mesh & SAP Advanced Event Mesh (AEM) with multi-cloud topic filtering & queuing', 'Decouples S/4HANA lifecycle events cleanly across hybrid & multi-cloud landscapes']
+        ['MuleSoft', 'Anypoint MQ (FIFO + DLQ) + Kafka Connector + ReplayId saved in ObjectStore v2', 'Rock-solid queue + DLQ replay when you can\'t lose a single message'],
+        ['Workato', 'Event Streams + Recipe Triggers + AWS SNS / Azure Event Hub / Kafka connectors', 'Quick event-to-action recipes with visual job history and 1-click rerun'],
+        ['Salesforce', 'Pub/Sub API (gRPC + HTTP/2 + Apache Avro) with client Pull Flow Control replacing CometD', 'High-speed streaming into Data Cloud and external microservices'],
+        ['SAP Integration Suite', 'SAP Event Mesh & SAP Advanced Event Mesh (AEM) with topic filtering & multi-cloud queues', 'Best way to broadcast S/4HANA business events without polling SAP tables']
       ]
     },
     gateways: {
-      heading: 'Unified API, AI & Hybrid Edge Gateways',
-      insight: 'Rare Architect Insight: Modern gateways now govern BOTH traditional REST/GraphQL traffic AND AI/MCP agent traffic inside private VPCs/on-prem perimeters without routing sensitive payloads through public SaaS planes.',
+      heading: 'Gateways That Guard Both APIs and AI Agents',
+      insight: 'You don\'t want two separate gateways — one for REST APIs and another for AI agents. MuleSoft Omni Gateway (the new Flex Gateway) and Workato API Edge Gateway let you enforce rate limits, auth, and PII rules in one place.',
       rows: [
-        ['MuleSoft', 'Omni Gateway (evolution of Flex Gateway) — unified policy plane for REST, GraphQL, MCP & AI agents', 'Ultra-lightweight Envoy-based gateway managing Mule & non-Mule APIs anywhere'],
-        ['Workato', 'API Edge Gateway (EGW) — local on-prem / private-cloud data plane + cloud control plane + RBAC 2.0', 'Keeps regulated banking/healthcare API traffic strictly inside corporate perimeter'],
-        ['Salesforce', 'External Services + Named Credentials + MuleSoft API Manager / Shield Event Monitoring', 'Declarative OAuth/mTLS callout management directly inside Salesforce'],
-        ['SAP Integration Suite', 'SAP API Management + Developer Hub (rate limits, OAuth, threat protection, API composition)', 'Centralized governance for SAP OData v4 and third-party enterprise APIs']
+        ['MuleSoft', 'Omni Gateway (evolution of Flex Gateway) — one lightweight Envoy gateway for REST, GraphQL, MCP & AI agents', 'Runs anywhere (Kubernetes, VMs, cloud) to protect Mule and non-Mule APIs'],
+        ['Workato', 'API Edge Gateway (EGW) — runs inside your private network while managed from Workato cloud + RBAC 2.0', 'Keeps sensitive banking/healthcare payloads inside your firewall'],
+        ['Salesforce', 'External Services + Named Credentials + MuleSoft API Manager / Shield Event Monitoring', 'Simple declarative OAuth/mTLS callouts straight from Flow and Agentforce'],
+        ['SAP Integration Suite', 'SAP API Management + Developer Hub (rate limits, OAuth, threat protection, OData v4)', 'Standard gateway for governing SAP OData and partner APIs']
       ]
     },
     core: {
-      heading: 'Modern Runtime, Zero-Copy Data & Clean Core',
-      insight: 'Rare Architect Insight: Copying ERP/CRM tables into 5 integration databases creates reconciliation nightmares. Combine Salesforce Data Cloud Zero-Copy + SAP S/4HANA Clean Core + SAP Graph to keep one source of truth.',
+      heading: 'Clean Core, Zero-Copy Data & Modern IDEs',
+      insight: 'Copying the same customer table into 5 different databases is why teams spend Fridays fixing sync bugs. Use Salesforce Data Cloud Zero-Copy and SAP Clean Core on BTP so the data stays in one place.',
       rows: [
-        ['MuleSoft', 'CloudHub 2.0 (Kubernetes Private Spaces) + Anypoint Code Builder (VS Code) + MuleSoft Vibes AI assistant', 'Pro-code API-led architecture with Terraform GitOps & OpenTelemetry Direct Telemetry'],
-        ['Workato', 'Low-code Recipes + AIRO Connector Builder + Collaborator Groups (RBAC 2.0)', 'Fastest delivery speed for cross-SaaS business & IT automation teams'],
-        ['Salesforce', 'Data Cloud Zero-Copy Federation (Snowflake / Databricks / BigQuery) + Apex/Flow pro-code hooks', 'Real-time 360 customer intelligence without duplicating terabytes of warehouse data'],
-        ['SAP Integration Suite', 'Clean Core side-by-side extensibility on SAP BTP + SAP Graph unified business model + OData v4', 'Keeps S/4HANA upgrades zero-breakage by banning invasive custom ABAP modifications']
+        ['MuleSoft', 'CloudHub 2.0 (Kubernetes Private Spaces) + Anypoint Code Builder (VS Code) + MuleSoft Vibes AI assistant', 'Full pro-code power with Terraform GitOps and OpenTelemetry traces'],
+        ['Workato', 'Low-code Recipes + AIRO Connector Builder + Collaborator Groups (RBAC 2.0)', 'Fastest build speed when IT and business teams co-own automations'],
+        ['Salesforce', 'Data Cloud Zero-Copy Federation (Snowflake / Databricks / BigQuery) + Apex/Flow hooks', 'Live 360 customer data in Salesforce without copying terabytes of warehouse tables'],
+        ['SAP Integration Suite', 'Clean Core side-by-side extensibility on SAP BTP + SAP Graph unified model + OData v4', 'Keeps S/4HANA upgrades clean by banning custom ABAP modifications in the core']
       ]
     }
   };
@@ -787,15 +817,15 @@
     var d = RADAR_DATA[activeRadarKey];
     if (!d) return;
     var md = [
-      '# 2026 Enterprise Integration Radar: ' + d.heading,
+      '# 2026 Cross-Platform Integration Radar: ' + d.heading,
       '',
       '> ' + d.insight,
       '',
-      '| Platform | 2026 Flagship Capability | Best Enterprise Fit |',
+      '| Platform | 2026 What\'s New | When to Pick It |',
       '| :--- | :--- | :--- |',
       d.rows.map(function (r) { return '| ' + r.join(' | ') + ' |'; }).join('\n'),
       '',
-      '_Source: Enterprise Integration Hub (https://niranjanpotter.dpdns.org)_'
+      '_From Niranjan\'s Enterprise Integration Hub (https://niranjanpotter.dpdns.org)_'
     ].join('\n');
     navigator.clipboard.writeText(md).then(function () {
       showToast('Copied 4-Platform Comparison (Markdown)!');

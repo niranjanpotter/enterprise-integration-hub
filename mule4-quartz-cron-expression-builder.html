@@ -3,68 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mule 4 &amp; 6-Field Quartz Cron Expression Builder &amp; XML Generator | Enterprise Integration Hub</title>
-  <meta name="description" content="Build and translate 5-field Unix/K8s and 6-field Quartz/Mule 4/Spring cron expressions with instant human explanations and copy-ready Mule 4 Scheduler XML.">
+  <title>Mule 4 &amp; 6-Field Quartz Cron Expression Builder | Enterprise Integration Hub</title>
+  <meta name="description" content="Translate 5-field Linux and 6-field Quartz/Mule 4 cron expressions into plain English and copy-ready Mule 4 Scheduler XML in one click.">
   <link rel="canonical" href="https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html">
-  <meta property="og:title" content="Mule 4 &amp; 6-Field Quartz Cron Expression Builder &amp; XML Generator">
-  <meta property="og:description" content="Build and translate 5-field Unix/K8s and 6-field Quartz/Mule 4/Spring cron expressions with instant human explanations and copy-ready Mule 4 Scheduler XML.">
+  <meta property="og:title" content="Mule 4 &amp; 6-Field Quartz Cron Expression Builder">
+  <meta property="og:description" content="Translate 5-field Linux and 6-field Quartz/Mule 4 cron expressions into plain English and copy-ready Mule 4 Scheduler XML in one click.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html">
   <meta property="og:image" content="https://niranjanpotter.dpdns.org/assets/og-card.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mule 4 &amp; 6-Field Quartz Cron Expression Builder &amp; XML Generator">
-  <meta name="twitter:description" content="Build and translate 5-field Unix/K8s and 6-field Quartz/Mule 4/Spring cron expressions with instant human explanations and copy-ready Mule 4 Scheduler XML.">
+  <meta name="twitter:title" content="Mule 4 &amp; 6-Field Quartz Cron Expression Builder">
+  <meta name="twitter:description" content="Translate 5-field Linux and 6-field Quartz/Mule 4 cron expressions into plain English and copy-ready Mule 4 Scheduler XML in one click.">
   <meta name="twitter:image" content="https://niranjanpotter.dpdns.org/assets/og-card.svg">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f59e0b'/%3E%3Cstop offset='1' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2309090b'/%3E%3Cpath d='M16 20h32v6H24v6h20v6H24v6h24v6H16z' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230A0A0A'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%2322c55e'/%3E%3Cpath d='M18 20h28v6H25v6h18v6H25v6h21v6H18z' fill='%23FFFFFF'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=4">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Mule 4 & 6-Field Quartz Cron Expression Builder & XML Generator", "description": "Build and translate 5-field Unix/K8s and 6-field Quartz/Mule 4/Spring cron expressions with instant human explanations and copy-ready Mule 4 Scheduler XML.", "url": "https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html", "author": {"@type": "Person", "name": "Niranjan Potter", "url": "https://niranjanprofile.vercel.app/"}, "datePublished": "2026-11-22", "dateModified": "2026-11-22"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does Mule 4 Scheduler fail on a standard 5-field Linux cron?", "acceptedAnswer": {"@type": "Answer", "text": "Mule 4 uses Quartz Cron (6 fields starting with Seconds) and requires a '?' wildcard in either Day-of-Month or Day-of-Week."}}]}]}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=5">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Mule 4 & 6-Field Quartz Cron Expression Builder", "description": "Translate 5-field Linux and 6-field Quartz/Mule 4 cron expressions into plain English and copy-ready Mule 4 Scheduler XML in one click.", "url": "https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html", "author": {"@type": "Person", "name": "Niranjan Kumar Potter", "url": "https://niranjanprofile.vercel.app/"}, "datePublished": "2026-11-22", "dateModified": "2026-11-23"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does Mule 4 reject standard 5-field cron expressions?", "acceptedAnswer": {"@type": "Answer", "text": "Because Mule 4 uses the Quartz engine, which requires 6 fields (starting with Seconds) and a '?' wildcard on Day-of-Month or Day-of-Week."}}]}]}</script>
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true">EI</span>
+        <span class="brand-mark" aria-hidden="true">NP</span>
         <span class="brand-text">
           <span class="brand-title">Enterprise Integration Hub</span>
-          <span class="brand-sub">Architecture &amp; Delivery Workbench</span>
+          <span class="brand-sub">Curated &amp; Authored by Niranjan Potter</span>
         </span>
       </a>
-      <div class="header-right">
-        <span class="author-pill">Curated &amp; Authored by Niranjan Potter</span>
-        <a class="btn btn-primary btn-sm" href="/#dev-utilities">Launch Tool →</a>
+      <div class="header-ctas">
+        <a class="cta-sticky-primary" href="/#dev-utilities">Decode My Token - Free</a>
+        <a class="cta-sticky-secondary" href="/#platform-radar">Try Integration Radar - Free</a>
       </div>
     </div>
   </header>
   <main class="section">
     <div class="container">
       <div class="section-card">
-        <div class="section-kicker">Mule 4, Spring &amp; Cloud Scheduler Utility</div>
-        <h1 style="margin:0 0 12px; font-size:clamp(1.65rem,3.4vw,2.5rem); line-height:1.15;">Mule 4 &amp; 6-Field Quartz Cron Expression Builder</h1>
-        <p style="color:var(--text-muted); font-size:1.02rem; max-width:780px; margin:0 0 22px;">Eliminate off-by-one cron bugs between 5-field Unix/GitHub Actions schedules and 6-field Quartz schedules used in MuleSoft Mule 4, Spring Boot, and Java batch jobs.</p>
+        <div class="section-kicker">100% Client-Side Cron Helper</div>
+        <h1 style="margin:0 0 12px; font-size:clamp(1.75rem,3.4vw,2.5rem); line-height:1.18;">Mule 4 &amp; Quartz Cron Builder - Stop Fighting the &#x27;?&#x27; Wildcard</h1>
+        <p style="color:var(--text-muted); font-size:1.05rem; max-width:780px; margin:0 0 14px;">If you&#x27;ve ever pasted a 5-field Linux cron into a Mule 4 Scheduler and watched the build fail, this tool is for you. Type or pick a preset to get plain-English timing and copy-ready Mule 4 XML.</p>
+        <p class="personal-note" style="margin-bottom:22px !important;">💡 I learned this the hard way: Mule 4 Quartz starts with Seconds (6 fields) and demands a &#x27;?&#x27; in either Day-of-Month or Day-of-Week. Mix them up and your job won&#x27;t deploy.</p>
         <div class="hero-actions" style="margin-bottom:26px;">
-          <a class="btn btn-primary" href="/#dev-utilities">⏱️ Open Cron / Quartz Builder</a>
-          <a class="btn" href="/">← All Interactive Workbench Tools</a>
+          <a class="btn btn-primary" href="/#dev-utilities">Open Cron Builder - Free</a>
+          <a class="btn" href="/">← Back to All Free Tools</a>
           <a class="btn" href="https://niranjanpotter.github.io/" target="_blank" rel="noopener noreferrer">📘 MuleSoft 268 Q&amp;A Hub ↗</a>
         </div>
-        <div class="result-box" style="margin-bottom:14px;"><h3>5-Field Unix vs 6-Field Quartz (Mule 4 / Spring)</h3><p style="color:var(--text);">Standard Unix cron starts with Minutes (5 fields), whereas Mule 4 and Quartz Scheduler start with Seconds (6 fields) and require `?` in either Day-of-Month or Day-of-Week. Our builder detects the format automatically and outputs ready-to-paste `&lt;scheduling-strategy&gt;&lt;cron .../&gt;&lt;/scheduling-strategy&gt;` XML.</p></div>
-        <h2 style="margin:26px 0 12px; font-size:1.25rem;">Frequently Asked Architect Questions</h2>
-        <div class="result-box" style="margin-bottom:12px;"><h3>Q: Why does Mule 4 Scheduler fail on a standard 5-field Linux cron?</h3><p>Mule 4 uses Quartz Cron (6 fields starting with Seconds) and requires a &#x27;?&#x27; wildcard in either Day-of-Month or Day-of-Week.</p></div>
+        <div class="result-box" style="margin-bottom:14px;"><h3>5-Field Linux Cron vs 6-Field Mule 4 Quartz</h3><p style="color:var(--text);">Linux cron has 5 fields starting with Minutes. Mule 4, Spring Boot, and Quartz have 6 fields starting with Seconds. Our builder translates both and gives you the exact `&lt;scheduling-strategy&gt;&lt;cron .../&gt;&lt;/scheduling-strategy&gt;` snippet.</p></div>
+        <h2 style="margin:26px 0 12px; font-size:1.4rem;">Quick Questions Developers Ask Me</h2>
+        <div class="result-box" style="margin-bottom:12px;"><h3>Q: Why does Mule 4 reject standard 5-field cron expressions?</h3><p>Because Mule 4 uses the Quartz engine, which requires 6 fields (starting with Seconds) and a &#x27;?&#x27; wildcard on Day-of-Month or Day-of-Week.</p></div>
+      </div>
+
+      <div class="founder-card" style="margin-top:24px;">
+        <div class="section-kicker">A Quick Note From Me</div>
+        <p class="founder-quote">
+          "Hey, I'm Niranjan. I'm a MuleSoft Architect from Kota, Rajasthan. I started sharing what I learn because I remember how confusing integration felt when I started. If this tool saved you 10 minutes today, share it with one developer friend. That's all I ask. - Niranjan Kumar Potter"
+        </p>
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">Follow Niranjan on LinkedIn</a>
       </div>
     </div>
   </main>
   <footer class="site-footer">
     <div class="container">
       <div style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border);">
-        <div class="section-kicker" style="margin-bottom:8px;">More Guides on Enterprise Integration Hub</div>
-        <div class="footer-links"><a href="mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html">MuleSoft vs Workato vs Salesforce vs SAP Integration Suite (2026)</a> <a href="integration-pattern-advisor-adr-generator.html">Enterprise Integration Pattern Advisor &amp; Markdown ADR Generator</a> <a href="integration-delivery-sprint-estimator.html">Integration Delivery &amp; Sprint Effort Estimator</a> <a href="offline-jwt-decoder-security-auditor.html">100% Offline Enterprise JWT Decoder &amp; Security Auditor</a> <a href="json-to-openapi-raml-schema-generator.html">Free Offline JSON → OpenAPI 3.0 &amp; RAML 1.0 Generator</a></div>
+        <div class="section-kicker" style="margin-bottom:8px;">More Free Tools &amp; Guides</div>
+        <div class="footer-links"><a href="mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html">MuleSoft vs Workato vs Salesforce vs SAP (2026 Honest Comparison)</a> <a href="offline-jwt-decoder-security-auditor.html">JWT Inspector - 100% Client-Side Offline Token Decoder</a> <a href="integration-pattern-advisor-adr-generator.html">Integration Pattern Advisor &amp; Free Markdown ADR Generator</a> <a href="integration-delivery-sprint-estimator.html">Integration Delivery &amp; Sprint Estimator for Architects &amp; Managers</a> <a href="json-to-openapi-raml-schema-generator.html">Free Offline JSON to OpenAPI 3.0 &amp; RAML 1.0 Schema Generator</a></div>
       </div>
       <div class="footer-inner">
-        <div><strong>Enterprise Integration Hub</strong> · Curated &amp; Authored by Niranjan Potter · <a href="mailto:niranjan@niranjanpotter.dpdns.org">niranjan@niranjanpotter.dpdns.org</a></div>
+        <div><strong>Made with ❤️ in India | No data stored | Free Forever | <a href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">Follow on LinkedIn</a></strong></div>
         <div class="footer-links">
-          <a href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:niranjan@niranjanpotter.dpdns.org">niranjan@niranjanpotter.dpdns.org</a>
           <a href="https://niranjanprofile.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio</a>
         </div>
       </div>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto JSON-to-JSON Mapper → DataWeave 2.0, Workato Formula &amp; SAP CPI Groovy Generator | Niranjan Potter</title>
+  <meta name="description" content="First-of-its-kind 100% browser-based JSON-to-JSON semantic mapper. Paste Source JSON and Target JSON to auto-match fields and generate null-safe MuleSoft DataWeave 2.0 (.dwl), Workato Ruby Formula Pills, and SAP Cloud Integration (CPI) Groovy code.">
+  <link rel="canonical" href="https://niranjanpotter.dpdns.org/auto-json-to-dataweave-workato-sap-groovy-mapper.html">
+  <meta property="og:title" content="Auto JSON-to-JSON Mapper → DataWeave 2.0, Workato Formula &amp; SAP CPI Groovy Generator">
+  <meta property="og:description" content="Paste Source JSON and Target JSON to automatically match fields and generate null-safe MuleSoft DataWeave 2.0, Workato Formulas, and SAP CPI Groovy scripts in your browser.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://niranjanpotter.dpdns.org/auto-json-to-dataweave-workato-sap-groovy-mapper.html">
+  <meta property="og:image" content="https://niranjanpotter.dpdns.org/assets/og-card.svg">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230A0A0A'/%3E%3Crect x='6' y='6' width='52' height='52' rx='12' fill='%2322c55e'/%3E%3Cpath d='M18 20h28v6H25v6h18v6H25v6h21v6H18z' fill='%23FFFFFF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=6">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Auto JSON-to-JSON Mapper (DataWeave 2.0, Workato Formula & SAP CPI Groovy Generator)",
+        "url": "https://niranjanpotter.dpdns.org/auto-json-to-dataweave-workato-sap-groovy-mapper.html",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Niranjan Kumar Potter", "url": "https://niranjanprofile.vercel.app/" },
+        "description": "100% client-side semantic JSON-to-JSON mapper that generates null-safe MuleSoft DataWeave 2.0 (.dwl), Workato Ruby Formula Pills, and SAP Cloud Integration (CPI) Groovy transformation scripts."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I automatically generate a DataWeave 2.0 script from a Source JSON and Target JSON?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Paste your Source JSON payload and expected Target JSON shape into the Auto JSON Mapper on Enterprise Integration Hub. It runs 100% in your browser, matches differently named fields semantically (e.g., order_id to SalesOrderID, first_name + last_name to CustomerFullName, qty * unit_price to LineTotal), and writes a null-safe DataWeave 2.0 (.dwl) script." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can it generate Workato Recipe Formula Pills and SAP CPI Groovy scripts from the same mapping?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. From a single Source + Target JSON pair, the mapper outputs MuleSoft DataWeave 2.0, Workato Ruby Formula mode expressions (.presence, .map), and an SAP Cloud Integration (CPI) Groovy script using JsonSlurper and JsonOutput." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">NP</span>
+        <span class="brand-text">
+          <span class="brand-title">Enterprise Integration Hub</span>
+          <span class="brand-sub">Curated &amp; Authored by Niranjan Potter</span>
+        </span>
+      </a>
+      <div class="header-ctas">
+        <a class="cta-sticky-primary" href="index.html#dev-utilities">🧬 Open Auto JSON Mapper - Free</a>
+        <a class="cta-sticky-secondary" href="index.html#platform-radar">Try Integration Radar - Free</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:36px; padding-bottom:48px;">
+    <article class="section-card">
+      <div class="section-kicker">100% Client-Side • Zero Data Stored • First on the Web</div>
+      <h1 style="font-size:2.1rem; margin:6px 0 14px; line-height:1.2;">Auto JSON-to-JSON Mapper → DataWeave 2.0, Workato Formula &amp; SAP CPI Groovy Generator</h1>
+      <p style="color:var(--text-muted); font-size:1.05rem;">Every single day, integration developers get a Source JSON from one team (like Salesforce or Stripe) and a Target JSON from another team (like SAP S/4HANA or NetSuite). Then we spend 30 minutes writing null-safe mappings by hand. I built this browser-only semantic mapper so you can paste both JSONs, auto-match fields in 1 second, and copy the exact transform code for <strong>MuleSoft DataWeave 2.0</strong>, <strong>Workato Formula Pills</strong>, and <strong>SAP Cloud Integration (CPI) Groovy</strong>.</p>
+      <p class="personal-note">💡 I learned this the hard way: 60% of production mapping bugs happen because a source field comes in as <code>null</code> and crashes arithmetic or string concatenation downstream.</p>
+
+      <div style="margin:22px 0;">
+        <a class="btn btn-primary" href="index.html#dev-utilities">🧬 Launch Interactive Auto JSON Mapper Now →</a>
+      </div>
+
+      <h2 style="font-size:1.45rem; margin-top:28px;">What Makes This Mapper Different From Every JSON Tool on Google?</h2>
+      <div class="result-grid" style="margin-top:14px;">
+        <div class="result-box">
+          <h3>1. Semantic Field Matching</h3>
+          <p>Source and target payloads never use identical names. The engine matches <code>order_id</code> → <code>SalesOrderID</code>, <code>email_address</code> → <code>BuyerEmail</code>, and <code>sku_code</code> → <code>MaterialNumber</code> automatically.</p>
+        </div>
+        <div class="result-box">
+          <h3>2. Composite &amp; Arithmetic Detection</h3>
+          <p>When your target asks for <code>CustomerFullName</code> or <code>LineTotal</code>, it automatically combines <code>first_name ++ " " ++ last_name</code> and calculates <code>qty * unit_price</code>.</p>
+        </div>
+        <div class="result-box">
+          <h3>3. Null-Safe By Default</h3>
+          <p>Every generated script includes null-safe defaults (<code>default ""</code>, <code>default 0</code>, Workato <code>.presence</code>, and Groovy safe navigation <code>?.</code> + Elvis <code>?:</code>) so missing fields never crash your flow.</p>
+        </div>
+        <div class="result-box">
+          <h3>4. 3 Enterprise Languages at Once</h3>
+          <p>Get ready-to-paste <strong>MuleSoft DataWeave 2.0 (<code>.dwl</code>)</strong>, <strong>Workato Ruby Formula Pills</strong>, and <strong>SAP CPI Groovy (<code>processData</code>)</strong> side-by-side.</p>
+        </div>
+      </div>
+
+      <h2 style="font-size:1.45rem; margin-top:28px;">Sample Output: Salesforce Order → SAP S/4HANA SalesOrder</h2>
+      <pre class="code-out" style="margin-top:12px;">%dw 2.0
+output application/json skipNullOn="everywhere"
+---
+{
+  SalesOrderID: payload.order_id default "",
+  OrderDate: (payload.created_at as DateTime as String {format: "yyyy-MM-dd"}) default "",
+  CustomerFullName: trim((payload.customer.first_name default "") ++ " " ++ (payload.customer.last_name default "")),
+  BuyerEmail: payload.customer.email_address default "",
+  NetValue: payload.total_amount default 0,
+  Currency: payload.currency_code default "",
+  Items: (payload.line_items default []) map ((item, index) -&gt; {
+    MaterialNumber: item.sku_code default "",
+    Quantity: item.qty default 0,
+    UnitPrice: item.unit_price default 0,
+    LineTotal: ((item.qty default 0) * (item.unit_price default 0))
+  })
+}</pre>
+
+      <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn btn-primary" href="index.html#dev-utilities">🧬 Try It With Your Own JSON Payloads →</a>
+        <a class="btn" href="index.html">← Back to Enterprise Integration Hub</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>Made with ❤️ in India | No data stored | Free Forever | <a href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">Follow on LinkedIn</a></strong></div>
+      <div class="footer-links">
+        <a href="index.html">Home Hub</a>
+        <a href="mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html">2026 Platform Radar</a>
+        <a href="rest-to-mcp-tool-schema-generator.html">REST → MCP Generator</a>
+        <a href="offline-pii-log-scrubber-dataweave-masking.html">PII Log Scrubber</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -19,8 +19,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=5">
-  <script src="assets/app.js?v=5" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=6">
+  <script src="assets/app.js?v=6" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -33,11 +33,16 @@
         "operatingSystem": "Web Browser",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Person", "name": "Niranjan Kumar Potter", "url": "https://niranjanprofile.vercel.app/" },
-        "description": "100% client-side integration architect tools: JWT Inspector, 2026 Cross-Platform Radar (MuleSoft, Workato, Salesforce, SAP), Pattern Advisor, and Sprint Estimator."
+        "description": "100% client-side integration architect tools: Auto JSON-to-JSON Mapper (DataWeave 2.0 + Workato Formula + SAP CPI Groovy), JWT Inspector, 2026 Cross-Platform Radar, Pattern Advisor, and Sprint Estimator."
       },
       {
         "@type": "FAQPage",
         "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How can I automatically generate DataWeave 2.0, Workato formulas, and SAP CPI Groovy from a Source JSON and Target JSON?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Paste your Source JSON and Target JSON into the Auto JSON Mapper on Enterprise Integration Hub. It matches fields semantically in your browser (including nested paths, arrays, full-name concatenation, and line totals) and generates null-safe MuleSoft DataWeave 2.0 (.dwl), Workato Ruby Formula Pills, and SAP Cloud Integration (CPI) Groovy scripts with zero data uploaded." }
+          },
           {
             "@type": "Question",
             "name": "Should I pick MuleSoft, Workato, Salesforce Agentforce, or SAP Integration Suite in 2026?",
@@ -240,6 +245,7 @@
 
           <div class="seg-group" id="util-tabs" role="tablist" aria-label="Offline Utilities">
             <button type="button" class="seg-btn active" onclick="switchUtilTab('util-jwt', this)">🔐 JWT Inspector</button>
+            <button type="button" class="seg-btn" onclick="switchUtilTab('util-mapper', this)">🧬 Auto JSON Mapper (DW / Workato / SAP)</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-mcp', this)">🤖 REST → MCP Tool</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-pii', this)">🛡️ PII Log Scrubber</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-cron', this)">⏱️ Cron / Quartz Builder</button>
@@ -342,6 +348,73 @@
                   <tr><td><strong>500 / 502 / 503 / 504</strong> Server Down</td><td><span class="status-chip status-ok">YES</span></td><td>Retry up to 3 times with backoff + circuit breaker (only if your write is idempotent!).</td><td>Move to replayable DLQ and page on-call.</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Auto JSON-to-JSON Mapper (DataWeave 2.0 + Workato Formula + SAP CPI Groovy) -->
+          <div id="util-mapper" style="display:none; margin-top:16px;">
+            <div class="toolbar-row">
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <span class="preset-label">Presets:</span>
+                <button type="button" class="btn btn-sm" onclick="loadMapperPreset('sfsap')">Salesforce → SAP S/4HANA</button>
+                <button type="button" class="btn btn-sm" onclick="loadMapperPreset('stripe')">Stripe → NetSuite Invoice</button>
+                <button type="button" class="btn btn-sm" onclick="loadMapperPreset('workday')">Workday → ServiceNow User</button>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <select id="mapper-target-lang" onchange="runJsonMapper()" aria-label="Target Mapping Language" style="min-height:44px; padding:8px 12px; border-radius:16px; border:1px solid var(--border); background:var(--bg-elev); color:var(--text); font-weight:700;">
+                  <option value="all" selected>All 3 (DataWeave 2.0 + Workato + SAP Groovy)</option>
+                  <option value="dw">MuleSoft DataWeave 2.0 (.dwl)</option>
+                  <option value="workato">Workato Recipe Formula Pills (Ruby)</option>
+                  <option value="groovy">SAP Cloud Integration (CPI) Groovy</option>
+                </select>
+                <button type="button" class="btn btn-primary btn-sm" onclick="copyMapperOutput()">📋 Copy Transform Code</button>
+              </div>
+            </div>
+            <div id="mapper-status" style="margin-bottom:12px;"></div>
+            <div class="util-grid">
+              <div class="field">
+                <label for="mapper-src">1. Source JSON Payload (What You Receive)</label>
+                <textarea id="mapper-src" oninput="runJsonMapper()">{
+  "order_id": "SF-ORD-9921",
+  "created_at": "2026-11-23T14:30:00Z",
+  "total_amount": 2450.75,
+  "currency_code": "USD",
+  "customer": {
+    "first_name": "Aarav",
+    "last_name": "Sharma",
+    "email_address": "aarav.sharma@enterprise.in"
+  },
+  "line_items": [
+    { "sku_code": "MAT-1004", "qty": 2, "unit_price": 1000.0 },
+    { "sku_code": "MAT-2040", "qty": 1, "unit_price": 450.75 }
+  ]
+}</textarea>
+                <div class="field-note">💡 I learned this the hard way: writing null-safe mappings by hand takes 30 minutes per API. Paste Source + Target JSON and get all 3 scripts instantly.</div>
+              </div>
+              <div class="field">
+                <label for="mapper-tgt">2. Target JSON Shape (What You Need to Send)</label>
+                <textarea id="mapper-tgt" oninput="runJsonMapper()">{
+  "SalesOrderID": "STRING",
+  "OrderDate": "2026-11-23",
+  "CustomerFullName": "STRING",
+  "BuyerEmail": "STRING",
+  "NetValue": 0.0,
+  "Currency": "USD",
+  "Items": [
+    {
+      "MaterialNumber": "STRING",
+      "Quantity": 0,
+      "UnitPrice": 0.0,
+      "LineTotal": 0.0
+    }
+  ]
+}</textarea>
+                <div class="field-note">🔒 100% browser-only semantic matcher. We never store your payloads. Promise.</div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:14px;">
+              <label>3. Auto-Matched Field Map + Ready-to-Paste DataWeave 2.0 / Workato / SAP CPI Groovy Code</label>
+              <pre class="code-out" id="mapper-output" style="min-height:260px;"></pre>
             </div>
           </div>
 
@@ -659,6 +732,7 @@
       <div style="margin-bottom:20px; padding-bottom:18px; border-bottom:1px solid var(--border);">
         <div class="section-kicker" style="margin-bottom:8px;">Deep-Dive Guides &amp; Free Tools</div>
         <div class="footer-links">
+          <a href="auto-json-to-dataweave-workato-sap-groovy-mapper.html">Auto JSON → DataWeave / Workato / SAP Groovy Mapper</a>
           <a href="mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html">MuleSoft vs Workato vs Salesforce vs SAP (2026)</a>
           <a href="rest-to-mcp-tool-schema-generator.html">REST → MCP Tool Generator</a>
           <a href="offline-pii-log-scrubber-dataweave-masking.html">PII Log Scrubber &amp; DataWeave Masker</a>

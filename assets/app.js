@@ -595,7 +595,7 @@
   /* ===== 5. Offline Enterprise Dev Utilities ===== */
   window.switchUtilTab = function (tabId, btn) {
     document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
-    ['util-jwt', 'util-cron', 'util-spec', 'util-http', 'util-mcp', 'util-pii'].forEach(function (id) {
+    ['util-jwt', 'util-mapper', 'util-cron', 'util-spec', 'util-http', 'util-mcp', 'util-pii'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = id === tabId ? 'block' : 'none';
     });
@@ -863,6 +863,355 @@
     });
   };
 
+  /* Auto JSON-to-JSON Mapper -> DataWeave 2.0 + Workato Formula + SAP CPI Groovy */
+  var MAPPER_PRESETS = {
+    sfsap: {
+      src: {
+        order_id: 'SF-ORD-9921',
+        created_at: '2026-11-23T14:30:00Z',
+        total_amount: 2450.75,
+        currency_code: 'USD',
+        customer: { first_name: 'Aarav', last_name: 'Sharma', email_address: 'aarav.sharma@enterprise.in' },
+        line_items: [
+          { sku_code: 'MAT-1004', qty: 2, unit_price: 1000.0 },
+          { sku_code: 'MAT-2040', qty: 1, unit_price: 450.75 }
+        ]
+      },
+      tgt: {
+        SalesOrderID: 'STRING',
+        OrderDate: '2026-11-23',
+        CustomerFullName: 'STRING',
+        BuyerEmail: 'STRING',
+        NetValue: 0.0,
+        Currency: 'USD',
+        Items: [
+          { MaterialNumber: 'STRING', Quantity: 0, UnitPrice: 0.0, LineTotal: 0.0 }
+        ]
+      }
+    },
+    stripe: {
+      src: {
+        payment_intent_id: 'pi_3Q9xLm2eZvKYlo2C',
+        paid_at: '2026-11-23T18:10:00Z',
+        amount_received: 8900.0,
+        currency: 'EUR',
+        billing_details: { given_name: 'Elena', family_name: 'Rostova', email: 'elena@nordic-corp.eu' },
+        charges: [
+          { product_sku: 'SUB-ENT-2026', quantity: 5, price_each: 1780.0 }
+        ]
+      },
+      tgt: {
+        ExternalInvoiceId: 'STRING',
+        TransactionDate: '2026-11-23',
+        CustomerName: 'STRING',
+        ContactEmail: 'STRING',
+        TotalAmount: 0.0,
+        CurrencyIso: 'EUR',
+        LineItems: [
+          { ItemCode: 'STRING', Qty: 0, Rate: 0.0, ExtendedAmount: 0.0 }
+        ]
+      }
+    },
+    workday: {
+      src: {
+        worker_id: 'WD-88412',
+        hire_date: '2026-11-01',
+        active_flag: true,
+        person: { first_name: 'Rohan', last_name: 'Mehta', work_email: 'rohan.mehta@globaltech.com', department_code: 'ENG-INTEGRATION' },
+        roles: [
+          { role_code: 'MULE_ARCHITECT', access_level: 'ADMIN' }
+        ]
+      },
+      tgt: {
+        employee_number: 'STRING',
+        start_date: '2026-11-01',
+        u_active: true,
+        name: 'STRING',
+        email: 'STRING',
+        department: 'STRING',
+        assigned_roles: [
+          { role_id: 'STRING', tier: 'STRING' }
+        ]
+      }
+    }
+  };
+
+  window.loadMapperPreset = function (key) {
+    var p = MAPPER_PRESETS[key];
+    if (!p) return;
+    document.getElementById('mapper-src').value = JSON.stringify(p.src, null, 2);
+    document.getElementById('mapper-tgt').value = JSON.stringify(p.tgt, null, 2);
+    window.runJsonMapper();
+  };
+
+  var SYN_GROUPS = [
+    ['id', 'orderid', 'salesorderid', 'paymentintentid', 'externalinvoiceid', 'workerid', 'employeenumber', 'empno', 'number', 'no'],
+    ['date', 'orderdate', 'createdat', 'paidat', 'transactiondate', 'hiredate', 'startdate', 'timestamp', 'time'],
+    ['email', 'emailaddress', 'buyeremail', 'contactemail', 'workemail', 'mail'],
+    ['amount', 'totalamount', 'netvalue', 'amountreceived', 'total', 'value', 'grandtotal'],
+    ['currency', 'currencycode', 'currencyiso', 'curr'],
+    ['sku', 'skucode', 'materialnumber', 'material', 'productsku', 'itemcode', 'productcode', 'rolecode', 'roleid'],
+    ['qty', 'quantity', 'count', 'orderqty'],
+    ['unitprice', 'price', 'priceeach', 'rate', 'netprice'],
+    ['items', 'lineitems', 'charges', 'lines', 'orderlines', 'roles', 'assignedroles'],
+    ['active', 'activeflag', 'uactive', 'isactive', 'enabled'],
+    ['department', 'departmentcode', 'dept'],
+    ['tier', 'accesslevel', 'level']
+  ];
+
+  function normKey(k) {
+    return String(k || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function tokenizeKey(k) {
+    return String(k || '')
+      .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
+  }
+
+  function scoreFieldMatch(srcPath, tgtKey) {
+    var srcLeaf = srcPath.split('.').pop();
+    var sNorm = normKey(srcLeaf);
+    var tNorm = normKey(tgtKey);
+    if (sNorm === tNorm) return 100;
+    for (var i = 0; i < SYN_GROUPS.length; i++) {
+      var g = SYN_GROUPS[i];
+      if (g.indexOf(sNorm) !== -1 && g.indexOf(tNorm) !== -1) return 92;
+    }
+    var sToks = tokenizeKey(srcLeaf);
+    var tToks = tokenizeKey(tgtKey);
+    var shared = 0;
+    sToks.forEach(function (st) {
+      tToks.forEach(function (tt) {
+        if (st === tt) shared += 2;
+        else {
+          SYN_GROUPS.forEach(function (g) {
+            if (g.indexOf(st) !== -1 && g.indexOf(tt) !== -1) shared += 1.5;
+          });
+        }
+      });
+    });
+    if (shared > 0) return Math.min(88, Math.round((shared / Math.max(sToks.length, tToks.length)) * 55));
+    if (sNorm.indexOf(tNorm) !== -1 || tNorm.indexOf(sNorm) !== -1) return 65;
+    return 0;
+  }
+
+  function collectLeafPaths(obj, prefix, out) {
+    out = out || { leaves: [], arrays: [] };
+    if (!obj || typeof obj !== 'object') return out;
+    Object.keys(obj).forEach(function (k) {
+      var path = prefix ? prefix + '.' + k : k;
+      var val = obj[k];
+      if (Array.isArray(val)) {
+        out.arrays.push({ path: path, sampleItem: (val[0] && typeof val[0] === 'object') ? val[0] : {} });
+      } else if (val && typeof val === 'object') {
+        collectLeafPaths(val, path, out);
+      } else {
+        out.leaves.push({ path: path, val: val });
+      }
+    });
+    return out;
+  }
+
+  function defaultForVal(v) {
+    if (typeof v === 'number') return { dw: '0', wk: '0', gr: '0' };
+    if (typeof v === 'boolean') return { dw: 'false', wk: 'false', gr: 'false' };
+    return { dw: '""', wk: '""', gr: '""' };
+  }
+
+  window.runJsonMapper = function () {
+    var srcEl = document.getElementById('mapper-src');
+    var tgtEl = document.getElementById('mapper-tgt');
+    var outEl = document.getElementById('mapper-output');
+    var statusEl = document.getElementById('mapper-status');
+    var langEl = document.getElementById('mapper-target-lang');
+    if (!srcEl || !tgtEl || !outEl) return;
+
+    try {
+      var srcObj = JSON.parse((srcEl.value || '{}').trim());
+      var tgtObj = JSON.parse((tgtEl.value || '{}').trim());
+      var lang = (langEl && langEl.value) || 'all';
+      var catalog = collectLeafPaths(srcObj, '');
+
+      var firstPath = null, lastPath = null;
+      catalog.leaves.forEach(function (l) {
+        var nk = normKey(l.path.split('.').pop());
+        if (nk === 'firstname' || nk === 'givenname') firstPath = l.path;
+        if (nk === 'lastname' || nk === 'familyname' || nk === 'surname') lastPath = l.path;
+      });
+
+      var auditLines = [];
+      var dwLines = [];
+      var wkLines = [];
+      var grLines = [];
+      var totalFields = 0;
+      var matchedFields = 0;
+
+      Object.keys(tgtObj).forEach(function (tKey) {
+        var tVal = tgtObj[tKey];
+        var tNorm = normKey(tKey);
+
+        if (Array.isArray(tVal)) {
+          totalFields++;
+          var bestArr = catalog.arrays[0] || null;
+          var bestArrScore = 0;
+          catalog.arrays.forEach(function (a) {
+            var sc = scoreFieldMatch(a.path, tKey);
+            if (sc >= bestArrScore) { bestArrScore = sc; bestArr = a; }
+          });
+
+          if (bestArr) {
+            matchedFields++;
+            auditLines.push('• [ARRAY] ' + tKey + '[]  <--  payload.' + bestArr.path + '[]');
+            var childSample = bestArr.sampleItem || {};
+            var childKeys = Object.keys(childSample);
+            var tItem = (tVal[0] && typeof tVal[0] === 'object') ? tVal[0] : {};
+
+            var qtyKey = null, priceKey = null;
+            childKeys.forEach(function (ck) {
+              var cnk = normKey(ck);
+              if (['qty', 'quantity', 'count'].indexOf(cnk) !== -1) qtyKey = ck;
+              if (['unitprice', 'price', 'priceeach', 'rate'].indexOf(cnk) !== -1) priceKey = ck;
+            });
+
+            var dwChild = [], wkChild = [], grChild = [];
+            Object.keys(tItem).forEach(function (tk) {
+              totalFields++;
+              var tkn = normKey(tk);
+              if (['linetotal', 'extendedamount', 'extendedprice', 'subtotal'].indexOf(tkn) !== -1 && qtyKey && priceKey) {
+                matchedFields++;
+                auditLines.push('    ↳ ' + tk + '  <--  (item.' + qtyKey + ' * item.' + priceKey + ') [Computed Arithmetic]');
+                dwChild.push('    ' + tk + ': ((item.' + qtyKey + ' default 0) * (item.' + priceKey + ' default 0))');
+                wkChild.push('      "' + tk + '" => (item["' + qtyKey + '"].to_f * item["' + priceKey + '"].to_f).round(2)');
+                grChild.push('      ' + tk + ': ((item?.' + qtyKey + ' ?: 0) * (item?.' + priceKey + ' ?: 0))');
+                return;
+              }
+              var bestCk = null, bestCScore = 0;
+              childKeys.forEach(function (ck) {
+                var sc = scoreFieldMatch(ck, tk);
+                if (sc > bestCScore) { bestCScore = sc; bestCk = ck; }
+              });
+              var dflt = defaultForVal(tItem[tk]);
+              if (bestCk && bestCScore >= 40) {
+                matchedFields++;
+                auditLines.push('    ↳ ' + tk + '  <--  item.' + bestCk + ' (' + bestCScore + '% match)');
+                dwChild.push('    ' + tk + ': item.' + bestCk + ' default ' + dflt.dw);
+                wkChild.push('      "' + tk + '" => item["' + bestCk + '"] || ' + dflt.wk);
+                grChild.push('      ' + tk + ': item?.' + bestCk + ' ?: ' + dflt.gr);
+              } else {
+                auditLines.push('    ↳ ' + tk + '  <--  [TODO: unmapped array field]');
+                dwChild.push('    ' + tk + ': ' + dflt.dw + ' // TODO: map ' + tk);
+                wkChild.push('      "' + tk + '" => ' + dflt.wk);
+                grChild.push('      ' + tk + ': ' + dflt.gr);
+              }
+            });
+
+            dwLines.push('  ' + tKey + ': (payload.' + bestArr.path + ' default []) map ((item, index) -> {\n' + dwChild.join(',\n') + '\n  })');
+            wkLines.push('?' + tKey + ' = ([' + bestArr.path + '] || []).map { |item|\n    {\n' + wkChild.join(',\n') + '\n    }\n  }');
+            grLines.push('    ' + tKey + ': (src?.' + bestArr.path.replace(/\./g, '?.') + ' ?: []).collect { item ->\n      [\n' + grChild.join(',\n') + '\n      ]\n    }');
+          }
+          return;
+        }
+
+        totalFields++;
+        if (['fullname', 'customerfullname', 'customername', 'name'].indexOf(tNorm) !== -1 && firstPath && lastPath) {
+          matchedFields++;
+          auditLines.push('• ' + tKey + '  <--  payload.' + firstPath + ' ++ " " ++ payload.' + lastPath + ' [Auto-Concatenated Full Name]');
+          dwLines.push('  ' + tKey + ': trim((payload.' + firstPath + ' default "") ++ " " ++ (payload.' + lastPath + ' default ""))');
+          wkLines.push('?' + tKey + ' = [[' + firstPath + '], [' + lastPath + ']].compact.join(" ")');
+          grLines.push('    ' + tKey + ': ((src?.' + firstPath.replace(/\./g, '?.') + ' ?: "") + " " + (src?.' + lastPath.replace(/\./g, '?.') + ' ?: "")).trim()');
+          return;
+        }
+
+        var bestLeaf = null, bestScore = 0;
+        catalog.leaves.forEach(function (l) {
+          var sc = scoreFieldMatch(l.path, tKey);
+          if (sc > bestScore) { bestScore = sc; bestLeaf = l; }
+        });
+
+        var defVal = defaultForVal(tVal);
+        if (bestLeaf && bestScore >= 40) {
+          matchedFields++;
+          var isDate = tNorm.indexOf('date') !== -1 && String(bestLeaf.val).indexOf('T') !== -1;
+          auditLines.push('• ' + tKey + '  <--  payload.' + bestLeaf.path + (isDate ? ' [ISO Timestamp -> YYYY-MM-DD]' : ' (' + bestScore + '% semantic match)'));
+          if (isDate) {
+            dwLines.push('  ' + tKey + ': (payload.' + bestLeaf.path + ' as DateTime as String {format: "yyyy-MM-dd"}) default ""');
+            wkLines.push('?' + tKey + ' = [' + bestLeaf.path + '].to_date.strftime("%Y-%m-%d")');
+            grLines.push('    ' + tKey + ': (src?.' + bestLeaf.path.replace(/\./g, '?.') + ' ?: "").take(10)');
+          } else {
+            dwLines.push('  ' + tKey + ': payload.' + bestLeaf.path + ' default ' + defVal.dw);
+            wkLines.push('?' + tKey + ' = [' + bestLeaf.path + '].presence || ' + defVal.wk);
+            grLines.push('    ' + tKey + ': src?.' + bestLeaf.path.replace(/\./g, '?.') + ' ?: ' + defVal.gr);
+          }
+        } else {
+          auditLines.push('• ' + tKey + '  <--  [TODO: No confident source match found]');
+          dwLines.push('  ' + tKey + ': ' + defVal.dw + ' // TODO: verify source path');
+          wkLines.push('?' + tKey + ' = ' + defVal.wk + ' # TODO: verify datapill');
+          grLines.push('    ' + tKey + ': ' + defVal.gr + ' // TODO: verify field');
+        }
+      });
+
+      var pct = totalFields > 0 ? Math.round((matchedFields / totalFields) * 100) : 100;
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="status-chip ' + (pct >= 80 ? 'status-ok' : 'status-warn') + '">🧬 Auto-Matched ' + matchedFields + '/' + totalFields + ' Target Fields (' + pct + '% Confidence) — Null-Safe Defaults Applied</span>';
+      }
+
+      var dwBlock = [
+        '=== 1. MULESOFT DATAWEAVE 2.0 (.dwl) ===',
+        '%dw 2.0',
+        'output application/json skipNullOn="everywhere"',
+        '---',
+        '{',
+        dwLines.join(',\n'),
+        '}'
+      ].join('\n');
+
+      var wkBlock = [
+        '=== 2. WORKATO RECIPE FORMULA PILLS (RUBY) ===',
+        '# Paste each formula expression into your Workato Action field in Formula Mode:',
+        wkLines.join('\n')
+      ].join('\n');
+
+      var grBlock = [
+        '=== 3. SAP CLOUD INTEGRATION (CPI) GROOVY SCRIPT ===',
+        'import com.sap.gateway.ip.core.customdev.util.Message',
+        'import groovy.json.JsonSlurper',
+        'import groovy.json.JsonOutput',
+        '',
+        'def Message processData(Message message) {',
+        '  def src = new JsonSlurper().parseText(message.getBody(String) ?: "{}")',
+        '  def tgt = [',
+        grLines.join(',\n'),
+        '  ]',
+        '  message.setHeader("Content-Type", "application/json")',
+        '  message.setBody(JsonOutput.prettyPrint(JsonOutput.toJson(tgt)))',
+        '  return message',
+        '}'
+      ].join('\n');
+
+      var sections = ['=== SEMANTIC FIELD MATCH SUMMARY ===\n' + auditLines.join('\n')];
+      if (lang === 'all' || lang === 'dw') sections.push(dwBlock);
+      if (lang === 'all' || lang === 'workato') sections.push(wkBlock);
+      if (lang === 'all' || lang === 'groovy') sections.push(grBlock);
+
+      outEl.textContent = sections.join('\n\n');
+    } catch (e) {
+      if (statusEl) statusEl.innerHTML = '<span class="status-chip status-err">Invalid JSON Syntax</span>';
+      outEl.textContent = 'Check your Source or Target JSON syntax: ' + e.message;
+    }
+  };
+
+  window.copyMapperOutput = function () {
+    var txt = document.getElementById('mapper-output').textContent || '';
+    navigator.clipboard.writeText(txt).then(function () {
+      showToast('Copied Auto-Generated Transform Code!');
+    }).catch(function () {
+      showToast('Copy failed.');
+    });
+  };
+
   /* ===== 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) ===== */
   var RADAR_DATA = {
     agentic: {
@@ -961,6 +1310,7 @@
     window.updateDeliveryEstimator();
     renderScorecard();
     window.loadSampleJwt();
+    window.runJsonMapper();
     window.explainCron();
     window.generateSpec('oas');
     window.generateMcpTool();

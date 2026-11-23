@@ -18,8 +18,70 @@
     var btn = document.getElementById('mobile-menu-btn');
     if (!drawer) return;
     var next = typeof forceState === 'boolean' ? forceState : !drawer.classList.contains('open');
+    if (next) window.toggleDotsMenu(false);
     drawer.classList.toggle('open', next);
     if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+  };
+
+  /* ===== 3-Dot Quick Tool Switcher Drawer ===== */
+  window.toggleDotsMenu = function (forceState) {
+    var drawer = document.getElementById('dots-tool-drawer');
+    var btn = document.getElementById('dots-tool-btn');
+    if (!drawer) return;
+    var next = typeof forceState === 'boolean' ? forceState : !drawer.classList.contains('open');
+    if (next) {
+      var mobDrawer = document.getElementById('mobile-nav-drawer');
+      if (mobDrawer) mobDrawer.classList.remove('open');
+    }
+    drawer.classList.toggle('open', next);
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+    if (next) {
+      var inp = document.getElementById('dots-search-input');
+      if (inp) {
+        inp.value = '';
+        window.filterDotsTools('');
+      }
+    }
+  };
+
+  window.filterDotsTools = function (q) {
+    var term = String(q || '').toLowerCase().trim();
+    document.querySelectorAll('#dots-tool-grid .dots-tool-item').forEach(function (item) {
+      var txt = (item.textContent || '').toLowerCase();
+      item.style.display = (!term || txt.indexOf(term) !== -1) ? 'flex' : 'none';
+    });
+  };
+
+  var SECTION_MAP = {
+    'section-radar': 'platform-radar',
+    'section-advisor': 'pattern-advisor',
+    'section-blueprints': 'blueprints',
+    'section-estimator': 'delivery-estimator',
+    'section-scorecard': 'readiness-audit'
+  };
+
+  window.pickToolFromDots = function (targetKey) {
+    window.toggleDotsMenu(false);
+    window.toggleMobileNav(false);
+    if (targetKey.indexOf('util-') === 0) {
+      var utilSec = document.getElementById('dev-utilities');
+      if (!utilSec) {
+        window.location.href = 'index.html#' + targetKey;
+        return;
+      }
+      var btn = document.querySelector('#util-tabs .seg-btn[onclick*="' + targetKey + '"]');
+      window.switchUtilTab(targetKey, btn);
+      utilSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (targetKey === 'util-verify') window.runLiveWebsiteVerify();
+      return;
+    }
+    var secId = SECTION_MAP[targetKey] || targetKey;
+    var secEl = document.getElementById(secId);
+    if (!secEl) {
+      window.location.href = 'index.html#' + secId;
+      return;
+    }
+    secEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   /* ===== Sticky CTA Jump Helpers ===== */
@@ -101,6 +163,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       window.toggleMobileNav(false);
+      window.toggleDotsMenu(false);
       if (activeFsEl && activeFsBtn) {
         window.toggleSectionFs(activeFsEl.id, activeFsBtn);
       }
@@ -594,8 +657,11 @@
 
   /* ===== 5. Offline Enterprise Dev Utilities ===== */
   window.switchUtilTab = function (tabId, btn) {
-    document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
-    ['util-jwt', 'util-mapper', 'util-cron', 'util-spec', 'util-http', 'util-mcp', 'util-pii'].forEach(function (id) {
+    document.querySelectorAll('#util-tabs .seg-btn').forEach(function (b) {
+      var isMatch = btn ? (b === btn) : ((b.getAttribute('onclick') || '').indexOf(tabId) !== -1);
+      b.classList.toggle('active', isMatch);
+    });
+    ['util-jwt', 'util-mapper', 'util-verify', 'util-cron', 'util-spec', 'util-http', 'util-mcp', 'util-pii'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = id === tabId ? 'block' : 'none';
     });
@@ -1212,6 +1278,153 @@
     });
   };
 
+  /* Real-Time Website, API, CORS & Live Cloudflare 1.1.1.1 DoH DNS Verifier */
+  window.setVerifyTarget = function (url) {
+    var inp = document.getElementById('verify-url-input');
+    if (inp) {
+      inp.value = url;
+      window.runLiveWebsiteVerify();
+    }
+  };
+
+  function extractHostname(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return { url: 'https://niranjanpotter.dpdns.org', host: 'niranjanpotter.dpdns.org' };
+    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+    try {
+      var u = new URL(s);
+      return { url: u.href, host: u.hostname };
+    } catch (e) {
+      return { url: s, host: s.replace(/^https?:\/\//i, '').split('/')[0] };
+    }
+  }
+
+  function queryCloudflareDns(host, type) {
+    var endpoint = 'https://cloudflare-dns.com/dns-query?name=' + encodeURIComponent(host) + '&type=' + encodeURIComponent(type);
+    return fetch(endpoint, { headers: { 'Accept': 'application/dns-json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var ans = (data && data.Answer) ? data.Answer : [];
+        return ans.map(function (a) { return type + ' (TTL ' + a.TTL + 's): ' + a.data; });
+      })
+      .catch(function () { return []; });
+  }
+
+  window.runLiveWebsiteVerify = function () {
+    var inp = document.getElementById('verify-url-input');
+    var out = document.getElementById('verify-output');
+    var st = document.getElementById('verify-status');
+    if (!inp || !out) return;
+
+    var parsed = extractHostname(inp.value);
+    if (st) st.innerHTML = '<span class="status-chip status-warn">⏳ Probing ' + parsed.host + ' (HTTPS + CORS + Cloudflare 1.1.1.1 Live DNS)...</span>';
+    out.textContent = 'Running real-time HTTPS latency probe, CORS header check, and Cloudflare 1.1.1.1 DoH DNS lookup for ' + parsed.url + ' ...';
+
+    var t0 = performance.now();
+    var httpReport = '';
+    var isOnline = false;
+
+    var httpPromise = fetch(parsed.url, { method: 'GET', mode: 'cors', cache: 'no-store' })
+      .then(function (res) {
+        var ms = Math.round(performance.now() - t0);
+        isOnline = true;
+        httpReport = [
+          '• Reachability : ONLINE (HTTP ' + res.status + ' ' + (res.statusText || 'OK') + ')',
+          '• Live Latency : ' + ms + ' ms (Direct Browser Fetch)',
+          '• CORS Policy  : ENABLED (Browser JavaScript calls allowed directly)',
+          '• Content-Type : ' + (res.headers.get('content-type') || 'unknown')
+        ].join('\n');
+      })
+      .catch(function () {
+        var t1 = performance.now();
+        return fetch(parsed.url, { method: 'GET', mode: 'no-cors', cache: 'no-store' })
+          .then(function () {
+            var ms = Math.round(performance.now() - t1);
+            isOnline = true;
+            httpReport = [
+              '• Reachability : ONLINE & TLS Handshake Verified (' + ms + ' ms)',
+              '• CORS Policy  : RESTRICTED (Target blocks direct cross-origin browser JS reads)',
+              '• Architect Fix: Call this endpoint from MuleSoft / Workato / Backend Gateway instead of browser SPA.'
+            ].join('\n');
+          })
+          .catch(function (err) {
+            isOnline = false;
+            httpReport = '• Reachability : UNREACHABLE or Blocked (' + (err && err.message ? err.message : 'Network error') + ')';
+          });
+      });
+
+    var dnsPromise = Promise.all([
+      queryCloudflareDns(parsed.host, 'A'),
+      queryCloudflareDns(parsed.host, 'CNAME'),
+      queryCloudflareDns(parsed.host, 'MX'),
+      queryCloudflareDns(parsed.host, 'TXT')
+    ]);
+
+    Promise.all([httpPromise, dnsPromise]).then(function (results) {
+      var dnsLists = results[1];
+      var allDns = [].concat(dnsLists[0], dnsLists[1], dnsLists[2], dnsLists[3]);
+      if (st) {
+        st.innerHTML = isOnline
+          ? '<span class="status-chip status-ok">🌐 Live Verified: ' + parsed.host + ' is ONLINE (' + allDns.length + ' Live DNS Records Found)</span>'
+          : '<span class="status-chip status-err">⚠️ Could Not Reach ' + parsed.host + '</span>';
+      }
+      out.textContent = [
+        '=== 1. REAL-TIME HTTPS & CORS PROBE (' + new Date().toISOString() + ') ===',
+        'Target URL: ' + parsed.url,
+        httpReport,
+        '',
+        '=== 2. LIVE CLOUDFLARE 1.1.1.1 DNS-OVER-HTTPS RECORDS (' + parsed.host + ') ===',
+        allDns.length ? allDns.map(function (r) { return '• ' + r; }).join('\n') : '• No public A/CNAME/MX/TXT records returned (or offline).'
+      ].join('\n');
+    });
+  };
+
+  var ECOSYSTEM_URLS = [
+    'https://niranjanpotter.dpdns.org/',
+    'https://niranjanpotter.dpdns.org/auto-json-to-dataweave-workato-sap-groovy-mapper.html',
+    'https://niranjanpotter.dpdns.org/mulesoft-vs-workato-vs-salesforce-vs-sap-2026.html',
+    'https://niranjanpotter.dpdns.org/rest-to-mcp-tool-schema-generator.html',
+    'https://niranjanpotter.dpdns.org/offline-pii-log-scrubber-dataweave-masking.html',
+    'https://niranjanpotter.dpdns.org/integration-pattern-advisor-adr-generator.html',
+    'https://niranjanpotter.dpdns.org/integration-delivery-sprint-estimator.html',
+    'https://niranjanpotter.dpdns.org/offline-jwt-decoder-security-auditor.html',
+    'https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html',
+    'https://niranjanpotter.dpdns.org/json-to-openapi-raml-schema-generator.html',
+    'https://niranjanpotter.github.io/',
+    'https://niranjanprofile.vercel.app/'
+  ];
+
+  window.verifyAllEcosystemSites = function () {
+    var out = document.getElementById('verify-output');
+    var st = document.getElementById('verify-status');
+    if (!out) return;
+    if (st) st.innerHTML = '<span class="status-chip status-warn">⏳ Auditing all 12 interlinked Hub &amp; Ecosystem URLs in real time...</span>';
+    out.textContent = 'Probing all 12 live URLs across niranjanpotter.dpdns.org, niranjanpotter.github.io, and niranjanprofile.vercel.app...';
+
+    var checks = ECOSYSTEM_URLS.map(function (u) {
+      var t0 = performance.now();
+      return fetch(u, { method: 'GET', mode: 'no-cors', cache: 'no-store' })
+        .then(function () {
+          var ms = Math.round(performance.now() - t0);
+          return '✅ ONLINE (' + ms + ' ms)  —  ' + u;
+        })
+        .catch(function () {
+          return '❌ FAILED  —  ' + u;
+        });
+    });
+
+    Promise.all(checks).then(function (lines) {
+      var okCount = lines.filter(function (l) { return l.indexOf('✅') === 0; }).length;
+      if (st) {
+        st.innerHTML = '<span class="status-chip status-ok">✅ Real-Time Interlink Audit: ' + okCount + '/' + ECOSYSTEM_URLS.length + ' Live Websites &amp; Tool Pages Verified Online</span>';
+      }
+      out.textContent = [
+        '=== REAL-TIME ECOSYSTEM & INTERLINK AUDIT (' + new Date().toISOString() + ') ===',
+        lines.join('\n')
+      ].join('\n\n');
+    });
+  };
+
   /* ===== 6. 2026 Cross-Platform Enterprise Radar (MuleSoft · Workato · Salesforce · SAP) ===== */
   var RADAR_DATA = {
     agentic: {
@@ -1316,5 +1529,19 @@
     window.generateMcpTool();
     window.scrubPiiPayload();
     window.selectRadarPillar('agentic', document.querySelector('#radar-tabs .seg-btn'));
+    var vOut = document.getElementById('verify-output');
+    var vSt = document.getElementById('verify-status');
+    if (vOut && vSt) {
+      vSt.innerHTML = '<span class="status-chip status-ok">🌐 Ready: Enter any Website or API Domain &amp; Click Verify</span>';
+      vOut.textContent = 'Click "🌐 Verify Live URL & DNS" to probe live HTTPS reachability, CORS headers, and Cloudflare 1.1.1.1 DNS records (A, CNAME, MX, TXT/SPF), or click "⚡ Audit All 12 Hub & Ecosystem Links" to verify every interlinked page in real time.';
+    }
+    function handleHashNav() {
+      var h = (window.location.hash || '').replace(/^#/, '');
+      if (h && h.indexOf('util-') === 0) {
+        window.pickToolFromDots(h);
+      }
+    }
+    window.addEventListener('hashchange', handleHashNav);
+    handleHashNav();
   });
 })();

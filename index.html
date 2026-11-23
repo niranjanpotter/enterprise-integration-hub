@@ -245,7 +245,7 @@
 
           <div class="seg-group" id="util-tabs" role="tablist" aria-label="Offline Utilities">
             <button type="button" class="seg-btn active" onclick="switchUtilTab('util-jwt', this)">🔐 JWT Inspector</button>
-            <button type="button" class="seg-btn" onclick="switchUtilTab('util-mapper', this)">🧬 Auto JSON Mapper (DW / Workato / SAP)</button>
+            <button type="button" class="seg-btn" onclick="switchUtilTab('util-mapper', this)">🧬 Auto JSON Mapper</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-mcp', this)">🤖 REST → MCP Tool</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-pii', this)">🛡️ PII Log Scrubber</button>
             <button type="button" class="seg-btn" onclick="switchUtilTab('util-cron', this)">⏱️ Cron / Quartz Builder</button>
@@ -360,12 +360,12 @@
                 <button type="button" class="btn btn-sm" onclick="loadMapperPreset('stripe')">Stripe → NetSuite Invoice</button>
                 <button type="button" class="btn btn-sm" onclick="loadMapperPreset('workday')">Workday → ServiceNow User</button>
               </div>
-              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                <select id="mapper-target-lang" onchange="runJsonMapper()" aria-label="Target Mapping Language" style="min-height:44px; padding:8px 12px; border-radius:16px; border:1px solid var(--border); background:var(--bg-elev); color:var(--text); font-weight:700;">
-                  <option value="all" selected>All 3 (DataWeave 2.0 + Workato + SAP Groovy)</option>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; max-width:100%;">
+                <select id="mapper-target-lang" onchange="runJsonMapper()" aria-label="Target Mapping Language" style="max-width:100%; min-height:44px; padding:8px 12px; border-radius:16px; border:1px solid var(--border); background:var(--bg-elev); color:var(--text); font-weight:700;">
+                  <option value="all" selected>All 3 (DataWeave + Workato + Groovy)</option>
                   <option value="dw">MuleSoft DataWeave 2.0 (.dwl)</option>
-                  <option value="workato">Workato Recipe Formula Pills (Ruby)</option>
-                  <option value="groovy">SAP Cloud Integration (CPI) Groovy</option>
+                  <option value="workato">Workato Formula Pills (Ruby)</option>
+                  <option value="groovy">SAP CPI Groovy Script</option>
                 </select>
                 <button type="button" class="btn btn-primary btn-sm" onclick="copyMapperOutput()">📋 Copy Transform Code</button>
               </div>

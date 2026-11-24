@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Automatically scans D:/enterprise-integration-hub for all public .html pages,
-regenerates sitemap.xml with today's <lastmod> date, commits & pushes to GitHub/Cloudflare
-if changed, verifies HTTP 200 status for all URLs, and submits all URLs to IndexNow.
+Automatically scans the repository for all public .html pages,
+regenerates sitemap.xml with today's IST (Asia/Kolkata) <lastmod> date,
+commits & pushes to GitHub/Cloudflare if changed, verifies HTTP 200 status
+for all URLs, and submits all URLs to IndexNow.
 """
 import datetime
 import glob
@@ -15,7 +16,8 @@ import urllib.request
 REPO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_URL = "https://niranjanpotter.dpdns.org"
 INDEXNOW_KEY = "e7a9c4b2f1d84e6093a5b7c8d1e2f3a4"
-TODAY = datetime.date.today().isoformat()
+IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+TODAY = datetime.datetime.now(IST).date().isoformat()
 
 
 def discover_html_pages():
@@ -57,10 +59,19 @@ def build_sitemap_xml(pages):
 
 def git_commit_and_push_if_changed():
     subprocess.run(["git", "add", "sitemap.xml"], cwd=REPO_DIR, check=False)
-    diff = subprocess.run(["git", " status", "--porcelain", "sitemap.xml"], cwd=REPO_DIR, capture_output=True, text=True)
-    status = subprocess.run(["git", "status", "--porcelain", "sitemap.xml"], cwd=REPO_DIR, capture_output=True, text=True)
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "sitemap.xml"],
+        cwd=REPO_DIR,
+        capture_output=True,
+        text=True,
+    )
     if status.stdout.strip():
-        subprocess.run(["git", "commit", "-m", f"chore(sitemap): auto-update sitemap.xml ({TODAY})"], cwd=REPO_DIR, check=False)
+        subprocess.run(
+            ["git", "commit", "-m", f"chore(sitemap): auto-update sitemap.xml ({TODAY}) [skip ci]"],
+            cwd=REPO_DIR,
+            check=False,
+        )
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd=REPO_DIR, check=False)
         subprocess.run(["git", "push", "origin", "main"], cwd=REPO_DIR, check=False)
         print(f"[GIT] Committed and pushed updated sitemap.xml ({TODAY})")
     else:
@@ -75,12 +86,19 @@ def submit_indexnow(url_list):
         "urlList": url_list,
     }
     data = json.dumps(payload).encode("utf-8")
-    for endpoint in ["https://api.indexnow.org/IndexNow", "https://www.bing.com/indexnow", "https://yandex.com/indexnow"]:
+    for endpoint in [
+        "https://api.indexnow.org/IndexNow",
+        "https://www.bing.com/indexnow",
+        "https://yandex.com/indexnow",
+    ]:
         try:
             req = urllib.request.Request(
                 endpoint,
                 data=data,
-                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "EnterpriseIntegrationHub-AutoSitemap/1.0"},
+                headers={
+                    "Content-Type": "application/json; charset=utf-8",
+                    "User-Agent": "EnterpriseIntegrationHub-AutoSitemap/1.0",
+                },
                 method="POST",
             )
             with urllib.request.urlopen(req, timeout=15) as r:
@@ -111,7 +129,7 @@ def main():
     with open(sitemap_path, "w", encoding="utf-8") as f:
         f.write(xml_content)
     url_list = [f"{BASE_URL}/"] + [f"{BASE_URL}/{p}" for p in pages]
-    print(f"[SITEMAP] Generated {len(url_list)} URLs in sitemap.xml with lastmod={TODAY}")
+    print(f"[SITEMAP] Generated {len(url_list)} URLs in sitemap.xml with lastmod={TODAY} (IST)")
     git_commit_and_push_if_changed()
     verify_live_urls(url_list)
     submit_indexnow(url_list)

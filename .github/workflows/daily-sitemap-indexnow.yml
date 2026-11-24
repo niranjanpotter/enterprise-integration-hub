@@ -1,0 +1,30 @@
+name: Daily Sitemap & IndexNow Auto-Updater
+
+on:
+  schedule:
+    # Runs daily at 03:30 UTC (09:00 AM IST / Asia/Kolkata)
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Regenerate Sitemap, Push & Ping IndexNow
+        run: python scripts/update_sitemap_and_indexnow.py

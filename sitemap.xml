@@ -7,12 +7,6 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://niranjanpotter.dpdns.org/muleguard.html</loc>
-    <lastmod>2026-11-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.98</priority>
-  </url>
-  <url>
     <loc>https://niranjanpotter.dpdns.org/auto-json-to-dataweave-workato-sap-groovy-mapper.html</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -38,6 +32,12 @@
   </url>
   <url>
     <loc>https://niranjanpotter.dpdns.org/mule4-quartz-cron-expression-builder.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://niranjanpotter.dpdns.org/muleguard.html</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

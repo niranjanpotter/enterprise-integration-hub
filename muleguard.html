@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuleGuard: MuleSoft Code Review, Security Guardrails &amp; Maven Plugin (2026)</title>
+  <meta name="description" content="Official MuleGuard guide by Niranjan Potter. Static code analysis, security scanning, DataWeave performance advisor &amp; CI/CD quality gates for MuleSoft Mule 4 in VS Code, ACB, and Anypoint Studio via Maven.">
+  <link rel="canonical" href="https://niranjanpotter.dpdns.org/muleguard.html">
+  <meta property="og:title" content="MuleGuard — Enterprise Quality &amp; Security Workbench for MuleSoft Mule 4">
+  <meta property="og:description" content="Catch hardcoded secrets, thread pool exhaustion, streaming memory leaks, and missing error handlers before code reaches CloudHub. Built for VS Code, Anypoint Code Builder, and Anypoint Studio.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://niranjanpotter.dpdns.org/muleguard.html">
+  <meta property="og:image" content="https://niranjanpotter.dpdns.org/assets/muleguard-icon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MuleGuard — MuleSoft Code Review &amp; Security Plugin">
+  <meta name="twitter:description" content="Real-time linting, security guardrails, DataWeave advisor &amp; Maven plugin for Mule 4. By Niranjan Potter.">
+  <meta name="twitter:image" content="https://niranjanpotter.dpdns.org/assets/muleguard-icon.png">
+  <link rel="icon" type="image/png" href="assets/muleguard-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=7">
+  <script src="assets/app.js?v=7" defer></script>
+  <style>
+    .hero-shield {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .hero-shield-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.35);
+      border: 2px solid rgba(56, 189, 248, 0.4);
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      margin-bottom: 12px;
+    }
+    .dual-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin: 28px 0;
+    }
+    .edition-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .edition-card:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+    }
+    .edition-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 18px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+    }
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    .code-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      padding: 8px 14px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      border-bottom: 1px solid #1e293b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .code-container {
+      position: relative;
+      margin: 16px 0;
+    }
+    .code-container pre {
+      margin: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+    .copy-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.18);
+    }
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+    .rule-table th, .rule-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .rule-table th {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+    }
+    .badge-crit { color: #f87171; background: rgba(248, 113, 113, 0.12); padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .badge-high { color: #fb923c; background: rgba(251, 146, 60, 0.12); padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .badge-med { color: #facc15; background: rgba(250, 204, 21, 0.12); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .terminal-mockup {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "MuleGuard",
+        "operatingSystem": "Cross-Platform (Windows, macOS, Linux)",
+        "applicationCategory": "DeveloperApplication",
+        "description": "Static code analysis, security guardrails, connector & DataWeave hover intelligence, and automated Maven CI/CD quality gates for MuleSoft Mule 4 applications.",
+        "url": "https://niranjanpotter.dpdns.org/muleguard.html",
+        "author": {
+          "@type": "Person",
+          "name": "Niranjan Kumar Potter",
+          "url": "https://niranjanprofile.vercel.app/"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "TechArticle",
+        "headline": "MuleGuard: Complete MuleSoft Code Review & Architecture Quality Guide",
+        "description": "Comprehensive tutorial on how to install and enforce MuleGuard in VS Code, Anypoint Code Builder, and Anypoint Studio 7.x via Maven Central.",
+        "url": "https://niranjanpotter.dpdns.org/muleguard.html",
+        "datePublished": "2026-11-26",
+        "dateModified": "2026-11-27"
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to main content</a>
+  
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">NP</span>
+        <span class="brand-text">
+          <span class="brand-title">Enterprise Integration Hub</span>
+          <span class="brand-sub">Curated &amp; Authored by Niranjan Potter</span>
+        </span>
+      </a>
+
+      <nav class="header-nav" aria-label="Primary Navigation">
+        <a class="nav-link" href="index.html#platform-radar">Radar</a>
+        <a class="nav-link" href="index.html#dev-utilities">JWT &amp; Tools</a>
+        <a class="nav-link" href="index.html#pattern-advisor">Pattern Advisor</a>
+        <a class="nav-link" href="index.html#blueprints">Blueprints</a>
+        <a class="nav-link" href="muleguard.html" style="color:#38bdf8; font-weight:700;">🛡️ MuleGuard</a>
+      </nav>
+
+      <div class="header-ctas">
+        <a class="cta-sticky-primary" href="https://marketplace.visualstudio.com/items?itemName=niranjanpotter.muleguard" target="_blank" rel="noopener noreferrer">Install on VS Code</a>
+        <a class="cta-sticky-secondary" href="https://central.sonatype.com/artifact/io.github.niranjanpotter/muleguard-maven-plugin/1.0.3" target="_blank" rel="noopener noreferrer">Maven Central (1.0.3)</a>
+      </div>
+
+      <div class="header-right">
+        <button type="button" class="dots-menu-btn" id="dots-tool-btn" onclick="toggleDotsMenu()" aria-label="Choose a tool from list" aria-expanded="false" title="Quick Tool Switcher">
+          <span class="dots-icon" aria-hidden="true">⋮</span>
+          <span class="dots-label-txt">Tools</span>
+        </button>
+        <button type="button" class="icon-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle Dark/Light Theme">☀️</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section" id="top">
+    <div class="container">
+      
+      <!-- HERO -->
+      <div class="section-card" style="margin-bottom: 28px;">
+        <div class="hero-shield">
+          <img src="assets/muleguard-icon.png" alt="MuleGuard Cyber Shield Icon" class="hero-shield-img" width="80" height="80">
+          <div>
+            <div class="badge-pill">🛡️ Version 1.0.3 Now Live on VS Code Marketplace &amp; Maven Central</div>
+            <h1 style="margin:0 0 8px; font-size:clamp(1.85rem,3.6vw,2.75rem); line-height:1.15; color:#f8fafc;">
+              MuleGuard: Enterprise MuleSoft Code Review, Security Guardrails &amp; DataWeave Intelligence
+            </h1>
+            <div style="color:var(--text-muted); font-size:1.05rem;">
+              By <strong>Niranjan Potter</strong> • Integration Architect • Certified MuleSoft Platform Architect
+            </div>
+          </div>
+        </div>
+
+        <p style="color:var(--text); font-size:1.1rem; max-width:860px; line-height:1.6; margin:0 0 20px;">
+          <strong>MuleGuard</strong> is an all-in-one quality and security workbench designed specifically for <strong>MuleSoft Mule 4</strong> applications. It catches hardcoded secrets, worker thread exhaustion, streaming memory leaks, missing error handlers, and anti-patterns <em>before</em> your code reaches CloudHub or Anypoint Exchange.
+        </p>
+
+        <div class="hero-actions" style="margin-bottom:24px;">
+          <a class="btn btn-primary" href="https://marketplace.visualstudio.com/items?itemName=niranjanpotter.muleguard" target="_blank" rel="noopener noreferrer">
+            ⚡ Install for VS Code &amp; ACB
+          </a>
+          <a class="btn" href="https://central.sonatype.com/artifact/io.github.niranjanpotter/muleguard-maven-plugin/1.0.3" target="_blank" rel="noopener noreferrer">
+            📦 View on Maven Central
+          </a>
+          <a class="btn" href="https://github.com/niranjanpotter/MuleGuard" target="_blank" rel="noopener noreferrer">
+            ⭐ Star on GitHub
+          </a>
+          <a class="btn" href="index.html">← Back to Integration Hub</a>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem; color:var(--text-muted); border-top:1px solid var(--border); padding-top:16px;">
+          <div>✅ <strong>36+ Architecture &amp; Security Rules</strong></div>
+          <div>⚡ <strong>0.4s Fast Maven Execution</strong></div>
+          <div>🔒 <strong>100% Offline &amp; Air-Gapped Safe</strong></div>
+          <div>📦 <strong>Zero CloudHub / Platform Credentials Needed</strong></div>
+        </div>
+      </div>
+
+      <!-- DUAL-ECOSYSTEM COMPARISON -->
+      <div class="section-card" style="margin-bottom: 28px;">
+        <div class="section-kicker">Two Native Ways to Run MuleGuard</div>
+        <h2 style="margin:0 0 16px; font-size:1.6rem;">Choose Your Development Environment</h2>
+        
+        <div class="dual-card-grid">
+          <div class="edition-card">
+            <div class="edition-tag">Interactive IDE Extension</div>
+            <h3 style="margin:0 0 8px; font-size:1.25rem;">MuleGuard for VS Code &amp; Anypoint Code Builder (ACB)</h3>
+            <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.5;">
+              Built natively for VS Code and MuleSoft's official next-gen IDE, Anypoint Code Builder.
+            </p>
+            <ul style="padding-left:20px; line-height:1.7; font-size:0.9rem; color:var(--text);">
+              <li><strong>Real-Time Red/Yellow Squiggles</strong> with 1-click Quick Fixes (<kbd>Ctrl+.</kbd>).</li>
+              <li><strong>Interactive Flow Visualizer</strong> (<kbd>Ctrl+Shift+V</kbd>) with clickable connector inspector.</li>
+              <li><strong>Architect-Grade DataWeave Hover</strong> with $O(N^2)$ loop warnings and streaming advice.</li>
+              <li><strong>Mule Project Explorer</strong> grouping Flows, DWL files, MUnits, and deduplicated YAML configs.</li>
+              <li><strong>7-Step Code Review Engine</strong> generating complete Markdown audit checklists.</li>
+            </ul>
+            <div style="margin-top:16px;">
+              <a class="btn btn-sm btn-primary" href="https://marketplace.visualstudio.com/items?itemName=niranjanpotter.muleguard" target="_blank" rel="noopener noreferrer">Marketplace: niranjanpotter.muleguard</a>
+            </div>
+          </div>
+
+          <div class="edition-card">
+            <div class="edition-tag">Build Automation &amp; Anypoint Studio</div>
+            <h3 style="margin:0 0 8px; font-size:1.25rem;">MuleGuard Maven Plugin for Studio 7.x &amp; CI/CD</h3>
+            <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.5;">
+              Published on Maven Central (`io.github.niranjanpotter`). Zero installation required on developer laptops.
+            </p>
+            <ul style="padding-left:20px; line-height:1.7; font-size:0.9rem; color:var(--text);">
+              <li><strong>Native to Anypoint Studio:</strong> Runs automatically on <em>Run As ➔ Maven test</em> or <code>mvn muleguard:check</code>.</li>
+              <li><strong>Automated Quality Gates:</strong> Enforce <code>&lt;failOnError&gt;true&lt;/failOnError&gt;</code> and <code>&lt;minScore&gt;80&lt;/minScore&gt;</code> in CI/CD.</li>
+              <li><strong>ANSI Colored Terminal Table:</strong> Clean summary of findings right in Studio's Console tab.</li>
+              <li><strong>Interactive HTML Report:</strong> Beautiful visual dashboard generated in <code>target/muleguard-report.html</code>.</li>
+              <li><strong>SonarQube &amp; Jenkins Ready:</strong> Machine-readable <code>target/muleguard-report.json</code> export.</li>
+            </ul>
+            <div style="margin-top:16px;">
+              <a class="btn btn-sm" href="https://central.sonatype.com/artifact/io.github.niranjanpotter/muleguard-maven-plugin/1.0.3" target="_blank" rel="noopener noreferrer">Maven Central: muleguard-maven-plugin</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTORIAL SECTION -->
+      <div class="section-card" style="margin-bottom: 28px;">
+        <div class="section-kicker">Interactive Tutorials</div>
+        <h2 style="margin:0 0 16px; font-size:1.6rem;">Step-by-Step Setup Guides</h2>
+
+        <div class="tab-nav" role="tablist">
+          <button type="button" class="tab-btn active" onclick="switchGuideTab('tab-studio')">Anypoint Studio 7.x (Maven)</button>
+          <button type="button" class="tab-btn" onclick="switchGuideTab('tab-vscode')">VS Code &amp; Anypoint Code Builder</button>
+          <button type="button" class="tab-btn" onclick="switchGuideTab('tab-cicd')">CI/CD Quality Gates (Azure &amp; Jenkins)</button>
+        </div>
+
+        <!-- TAB 1: STUDIO -->
+        <div class="tab-pane active" id="tab-studio">
+          <h3>Running MuleGuard Inside Anypoint Studio 7.x</h3>
+          <p style="color:var(--text-muted);">
+            Because every Anypoint Studio project is a standard Apache Maven project, you can integrate MuleGuard in 60 seconds without installing any Eclipse plugins.
+          </p>
+
+          <h4>Step 1: Add to your Mule project's <code>pom.xml</code></h4>
+          <p>Paste this plugin definition inside the <code>&lt;build&gt;&lt;plugins&gt;</code> block:</p>
+
+          <div class="code-container">
+            <div class="code-toolbar">
+              <span>pom.xml</span>
+              <button type="button" class="copy-btn" onclick="copyCode('studio-pom-snippet')">Copy XML</button>
+            </div>
+            <pre><code class="language-xml" id="studio-pom-snippet">&lt;plugin&gt;
+    &lt;groupId&gt;io.github.niranjanpotter&lt;/groupId&gt;
+    &lt;artifactId&gt;muleguard-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;1.0.3&lt;/version&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;check&lt;/goal&gt;
+            &lt;/goals&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+    &lt;configuration&gt;
+        &lt;!-- Minimum quality score required out of 100 --&gt;
+        &lt;minScore&gt;75&lt;/minScore&gt;
+        &lt;!-- Fail build if critical security flaws found (default: false) --&gt;
+        &lt;failOnError&gt;false&lt;/failOnError&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+          </div>
+
+          <h4>Step 2: Run in Anypoint Studio</h4>
+          <ul>
+            <li><strong>Method A (Automatic on Test):</strong> Right-click your project in Studio ➔ <strong>Run As</strong> ➔ <strong>Maven test</strong>.</li>
+            <li><strong>Method B (Standalone Goal):</strong> Right-click project ➔ <strong>Run As</strong> ➔ <strong>Maven build...</strong> ➔ Goals: <code>muleguard:check</code> ➔ <strong>Run</strong>.</li>
+            <li><strong>Method C (Terminal):</strong> In Studio's built-in terminal, run: <code>mvn muleguard:check</code>.</li>
+          </ul>
+
+          <h4>Step 3: Inspect the Output</h4>
+          <p>MuleGuard displays findings directly in Anypoint Studio's native <strong>Console</strong>:</p>
+
+          <div class="terminal-mockup">
+[INFO] --- muleguard-maven-plugin:1.0.3:check (default-cli) @ orders-api ---<br>
+[INFO] Scanning MuleSoft project at: src/main/mule<br>
+[INFO] ------------------------------------------------------------------------<br>
+[INFO] [MuleGuard] MuleSoft Code Review &amp; Architecture Quality Audit<br>
+[INFO] ------------------------------------------------------------------------<br>
+<span style="color:#f87171;">[WARNING] [CRITICAL] S-01   | src/main/mule/orders.xml:28 | Cleartext password found: "Ad***5"</span><br>
+[INFO]        Recommendation: Move credentials into secure.yaml (${secure::password}).<br>
+<span style="color:#fb923c;">[WARNING] [HIGH]     MG002  | src/main/mule/orders.xml:45 | Missing error-handler in 'create-order-flow'</span><br>
+[INFO]        Recommendation: Add an &lt;error-handler&gt; block to ensure structured errors.<br>
+<span style="color:#fb923c;">[WARNING] [HIGH]     BP-04  | src/main/mule/global.xml:18 | Missing responseTimeout on HTTP Request</span><br>
+[INFO]        Recommendation: Configure responseTimeout to prevent worker thread exhaustion.<br>
+[INFO] ------------------------------------------------------------------------<br>
+[INFO] Audit Summary: 3 Finding(s) [Critical: 1, High: 2, Medium: 0, Low: 0]<br>
+<span style="color:#facc15;">[INFO] Quality Score: 77/100 (Grade: C, Min Required: 75)</span><br>
+[INFO] Interactive HTML report saved to: target/muleguard-report.html<br>
+[INFO] ------------------------------------------------------------------------
+          </div>
+
+          <p>Open <code>target/muleguard-report.html</code> in any web browser to explore the full interactive dashboard!</p>
+        </div>
+
+        <!-- TAB 2: VS CODE -->
+        <div class="tab-pane" id="tab-vscode">
+          <h3>Using MuleGuard in VS Code &amp; Anypoint Code Builder</h3>
+
+          <h4>Step 1: Install the Extension</h4>
+          <p>Search for <strong>"MuleGuard"</strong> in the VS Code Extensions pane (<kbd>Ctrl+Shift+X</kbd>), or run:</p>
+          <div class="code-container">
+            <div class="code-toolbar"><span>Terminal</span><button type="button" class="copy-btn" onclick="copyCode('vscode-install-cmd')">Copy</button></div>
+            <pre><code class="language-bash" id="vscode-install-cmd">code --install-extension niranjanpotter.muleguard</code></pre>
+          </div>
+
+          <h4>Step 2: Key Capabilities &amp; Shortcuts</h4>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:16px; margin-top:16px;">
+            <div style="background:var(--surface); padding:16px; border-radius:8px; border:1px solid var(--border);">
+              <h4 style="margin:0 0 6px;">💡 DataWeave Hover Explainer</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+                Hover over any function (<code>map</code>, <code>filter</code>, <code>reduce</code>, <code>sizeOf</code>) or context variable (<code>payload</code>, <code>vars</code>, <code>attributes</code>) in <code>.dwl</code> or XML files for instant logic breakdowns and architect performance advice.
+              </p>
+            </div>
+            <div style="background:var(--surface); padding:16px; border-radius:8px; border:1px solid var(--border);">
+              <h4 style="margin:0 0 6px;">🔄 Interactive Flow Visualizer</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+                Press <kbd>Ctrl+Shift+V</kbd> to render live SVG architecture diagrams. Click any connector to inspect its XML attributes, threading model, and payload contracts.
+              </p>
+            </div>
+            <div style="background:var(--surface); padding:16px; border-radius:8px; border:1px solid var(--border);">
+              <h4 style="margin:0 0 6px;">📋 7-Step Code Review Engine</h4>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+                Press <kbd>Ctrl+Shift+P</kbd> ➔ <strong>MuleGuard: Run Full 7-Step Code Review</strong> to generate an executive Markdown audit report (<code>code-review-report.md</code>) across all 45 checklist criteria.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: CI/CD -->
+        <div class="tab-pane" id="tab-cicd">
+          <h3>Enforcing CI/CD Quality Gates</h3>
+          <p style="color:var(--text-muted);">
+            Prevent unencrypted passwords and unstable flows from ever deploying to CloudHub by making MuleGuard a mandatory quality gate in your build pipelines.
+          </p>
+
+          <h4>Azure DevOps Pipeline (azure-pipelines.yml)</h4>
+          <div class="code-container">
+            <div class="code-toolbar"><span>azure-pipelines.yml</span><button type="button" class="copy-btn" onclick="copyCode('azure-pipeline-snippet')">Copy</button></div>
+            <pre><code class="language-yaml" id="azure-pipeline-snippet">- task: Maven@3
+  displayName: 'MuleGuard Code Review Quality Gate'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'muleguard:check'
+    options: '-Dmuleguard.failOnError=true -Dmuleguard.minScore=80'
+  continueOnError: false</code></pre>
+          </div>
+
+          <h4>GitHub Actions (.github/workflows/mule-review.yml)</h4>
+          <div class="code-container">
+            <div class="code-toolbar"><span>mule-review.yml</span><button type="button" class="copy-btn" onclick="copyCode('github-actions-snippet')">Copy</button></div>
+            <pre><code class="language-yaml" id="github-actions-snippet">name: MuleGuard Quality Gate
+on: [push, pull_request]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Run MuleGuard Static Analysis
+        run: mvn io.github.niranjanpotter:muleguard-maven-plugin:1.0.3:check -Dmuleguard.failOnError=true -Dmuleguard.minScore=80</code></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RULE CATALOG -->
+      <div class="section-card" style="margin-bottom: 28px;">
+        <div class="section-kicker">Enterprise Rule Catalog</div>
+        <h2 style="margin:0 0 16px; font-size:1.6rem;">Key Rules Enforced by MuleGuard</h2>
+
+        <table class="rule-table">
+          <thead>
+            <tr>
+              <th>Rule ID</th>
+              <th>Category</th>
+              <th>Severity</th>
+              <th>What MuleGuard Checks &amp; Enforces</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>S-01</code></td>
+              <td>Security</td>
+              <td><span class="badge-crit">CRITICAL</span></td>
+              <td>Detects cleartext passwords, clientSecret, and private keys hardcoded in connector XML attributes.</td>
+            </tr>
+            <tr>
+              <td><code>S-02</code></td>
+              <td>Security</td>
+              <td><span class="badge-high">HIGH</span></td>
+              <td>Flags HTTP listeners lacking TLS/HTTPS contexts on public inbound ports.</td>
+            </tr>
+            <tr>
+              <td><code>S-05</code></td>
+              <td>Security</td>
+              <td><span class="badge-crit">CRITICAL</span></td>
+              <td>Detects unencrypted sensitive properties in environment YAML files (requires <code>![encrypted]</code>).</td>
+            </tr>
+            <tr>
+              <td><code>MG002</code></td>
+              <td>Reliability</td>
+              <td><span class="badge-high">HIGH</span></td>
+              <td>Flags Mule flows missing an inline <code>&lt;error-handler&gt;</code> or global reference.</td>
+            </tr>
+            <tr>
+              <td><code>MG003</code></td>
+              <td>Observability</td>
+              <td><span class="badge-med">MEDIUM</span></td>
+              <td>Ensures flows contain entry/exit loggers with <code>correlationId</code> for distributed tracing.</td>
+            </tr>
+            <tr>
+              <td><code>MG008</code></td>
+              <td>Performance</td>
+              <td><span class="badge-med">MEDIUM</span></td>
+              <td>Warns on hardcoded <code>level="DEBUG"</code> or <code>"TRACE"</code> loggers that cause CloudHub I/O bottlenecks.</td>
+            </tr>
+            <tr>
+              <td><code>BP-03</code></td>
+              <td>Resilience</td>
+              <td><span class="badge-high">HIGH</span></td>
+              <td>Ensures outbound HTTP, DB, and JMS connectors define standard reconnection retry strategies.</td>
+            </tr>
+            <tr>
+              <td><code>BP-04</code></td>
+              <td>Performance</td>
+              <td><span class="badge-high">HIGH</span></td>
+              <td>Flags HTTP Request configs missing <code>responseTimeout</code>, preventing worker thread exhaustion.</td>
+            </tr>
+            <tr>
+              <td><code>DW-01</code></td>
+              <td>DataWeave</td>
+              <td><span class="badge-high">HIGH</span></td>
+              <td>Alerts on <code>sizeOf(payload)</code> on streaming payloads that cause <code>OutOfMemoryError</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FAQ -->
+      <div class="section-card" style="margin-bottom: 28px;">
+        <div class="section-kicker">Frequently Asked Questions</div>
+        <h2 style="margin:0 0 16px; font-size:1.6rem;">Common Questions</h2>
+
+        <div class="result-box" style="margin-bottom:12px;">
+          <h3 style="margin-top:0;">Q: Does MuleGuard upload any code or data to external servers?</h3>
+          <p style="margin:0; color:var(--text);">
+            <strong>No, never.</strong> MuleGuard is 100% offline and air-gapped safe. Both the VS Code extension and the Maven plugin perform pure in-memory static analysis. Zero code, tokens, or configuration ever leave your computer.
+          </p>
+        </div>
+
+        <div class="result-box" style="margin-bottom:12px;">
+          <h3 style="margin-top:0;">Q: How is MuleGuard different from SonarQube?</h3>
+          <p style="margin:0; color:var(--text);">
+            Standard SonarQube lacks deep awareness of Mule 4 XML schemas, DataWeave 2.0 streaming contracts, and connector threading pools. MuleGuard is purpose-built by a MuleSoft Architect with 36+ Mule-specific guardrails.
+          </p>
+        </div>
+
+        <div class="result-box" style="margin-bottom:12px;">
+          <h3 style="margin-top:0;">Q: Can I use it in Anypoint Studio 7.x without VS Code?</h3>
+          <p style="margin:0; color:var(--text);">
+            <strong>Yes!</strong> By adding the <code>muleguard-maven-plugin</code> to your <code>pom.xml</code>, you can run automated code reviews directly inside Anypoint Studio via <em>Run As ➔ Maven test</em>.
+          </p>
+        </div>
+      </div>
+
+      <!-- AUTHOR CARD -->
+      <div class="founder-card">
+        <div class="section-kicker">A Note from the Author</div>
+        <p class="founder-quote">
+          "I built MuleGuard because I spent years in enterprise code reviews pointing out the exact same avoidable flaws: hardcoded database passwords, unhandled errors, missing HTTP timeouts that brought down worker nodes, and streaming DataWeave scripts that crashed under load. MuleGuard automate these guardrails so developers can ship bulletproof integrations with confidence."<br><br>
+          <strong>— Niranjan Kumar Potter</strong><br>
+          <span style="font-size:0.85rem; color:var(--text-muted);">MuleSoft Architect • Kota, Rajasthan • Creator of Enterprise Integration Hub &amp; MuleGuard</span>
+        </p>
+        <div style="margin-top:16px;">
+          <a class="btn btn-sm" href="https://www.linkedin.com/in/niranjan-potter-551b49171" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
+          <a class="btn btn-sm" href="https://niranjanprofile.vercel.app/" target="_blank" rel="noopener noreferrer">Architect Portfolio</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer" style="border-top:1px solid var(--border); padding:32px 0; margin-top:40px; text-align:center; color:var(--text-muted); font-size:0.9rem;">
+    <div class="container">
+      <p style="margin:0 0 8px;">
+        <strong>Enterprise Integration Hub &amp; MuleGuard</strong> • Authored by Niranjan Potter
+      </p>
+      <p style="margin:0; font-size:0.8rem;">
+        Open Source under the MIT License • Available on VS Code Marketplace &amp; Maven Central
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    function switchGuideTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      const activePane = document.getElementById(tabId);
+      if (activePane) activePane.classList.add('active');
+
+      const clickedBtn = event.currentTarget;
+      if (clickedBtn) clickedBtn.classList.add('active');
+    }
+
+    function copyCode(elemId) {
+      const code = document.getElementById(elemId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = event.currentTarget;
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = originalText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

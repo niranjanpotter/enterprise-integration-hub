@@ -1,16 +1,17 @@
 name: Daily Sitemap & IndexNow Auto-Updater
 
 on:
-  schedule:
-    # Runs daily at 03:30 UTC (09:00 AM IST / Asia/Kolkata)
-    - cron: '30 3 * * *'
-  push:
-    branches:
-      - main
-    paths:
-      - '*.html'
-      - 'scripts/update_sitemap_and_indexnow.py'
-      - '.github/workflows/daily-sitemap-indexnow.yml'
+  # Paused automatic triggers for now — run manually via workflow_dispatch when needed
+  # schedule:
+  #   # Runs daily at 03:30 UTC (09:00 AM IST / Asia/Kolkata)
+  #   - cron: '30 3 * * *'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - '*.html'
+  #     - 'scripts/update_sitemap_and_indexnow.py'
+  #     - '.github/workflows/daily-sitemap-indexnow.yml'
   workflow_dispatch:
 
 permissions:
